@@ -617,7 +617,46 @@ function applyAppearanceToAdmin(data) {
     }
     if (data.cursorStyle) {
         root.style.setProperty('--cursor-style', data.cursorStyle);
+        // Clear old cursor classes and add the new one
+        document.body.classList.remove('cursor-dot', 'cursor-ring', 'cursor-glow', 'cursor-heart');
+        document.body.classList.add(`cursor-${data.cursorStyle}`);
     }
 }
 
 
+
+// --- Custom Cursor Admin Init ---
+const cursorAura = document.querySelector('.cursor-aura');
+
+function initAdminCursor() {
+    // Only on non-touch devices
+    if (window.matchMedia("(pointer: fine)").matches && cursorAura) {
+        document.addEventListener('mousemove', (e) => {
+            requestAnimationFrame(() => {
+                cursorAura.style.left = e.clientX + 'px';
+                cursorAura.style.top = e.clientY + 'px';
+            });
+        });
+
+        // Hover effects for links, buttons, inputs
+        const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, .micro-hover');
+
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorAura.classList.add('hover-active');
+            });
+
+            el.addEventListener('mouseleave', () => {
+                cursorAura.classList.remove('hover-active');
+            });
+        });
+    } else if (cursorAura) {
+        // Disable cursor aura on mobile
+        cursorAura.style.display = 'none';
+    }
+}
+
+// Call init on load
+document.addEventListener('DOMContentLoaded', () => {
+    initAdminCursor();
+});
