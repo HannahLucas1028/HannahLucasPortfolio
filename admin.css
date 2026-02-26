@@ -5,8 +5,8 @@
 
 .admin-sidebar {
     width: 250px;
-    background: var(--bg-surface);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(30, 30, 35, 0.9);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -60,8 +60,8 @@
 
 .admin-panel {
     display: none;
-    background: rgba(20, 20, 25, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(35, 35, 40, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 2rem;
     margin-bottom: 2rem;
