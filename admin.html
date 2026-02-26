@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Hannah Lucas</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Admin Specific Styles -->
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+    <!-- Authentication Screen (Visible by default until verified) -->
+    <div id="auth-container">
+        <div id="auth-box">
+            <h2 class="mb-md auth-title">Admin SECURE ACCESS</h2>
+            <p class="text-secondary mb-lg text-sm">Sign in with authorized Google account to continue.</p>
+            <button id="login-google-btn" class="primary-btn w-full pulse-glow">Sign In with Google</button>
+            <p id="auth-error" class="mt-sm auth-error-msg"></p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="admin-layout" id="dashboard-container">
+
+        <aside class="admin-sidebar">
+            <h3 class="admin-sidebar-title">CONTROL<br><span class="text-glow">PANEL</span></h3>
+
+            <nav class="admin-nav">
+                <a href="#overview" class="admin-nav-item active" data-target="panel-overview">Overview</a>
+                <a href="#appearance" class="admin-nav-item" data-target="panel-appearance">Appearance</a>
+                <a href="#chapters" class="admin-nav-item" data-target="panel-chapters">Journey Chapters</a>
+                <a href="#receipts" class="admin-nav-item" data-target="panel-receipts">Receipts</a>
+                <a href="#media" class="admin-nav-item" data-target="panel-media">Media Library</a>
+                <a href="#messages" class="admin-nav-item" data-target="panel-messages">Messages</a>
+            </nav>
+
+            <div class="sidebar-bottom">
+                <p id="user-email-display" class="text-secondary mb-sm user-email"></p>
+                <button id="logout-btn" class="cyber-button w-full btn-sm">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="admin-content">
+            <header class="admin-header">
+                <h1 id="panel-title" class="panel-heading-title">Overview</h1>
+                <a href="/" target="_blank" class="cyber-button">View Live Site &nearr;</a>
+            </header>
+
+            <!-- Overview Panel -->
+            <section id="panel-overview" class="admin-panel active">
+                <div class="grid-2-col">
+                    <div class="glass-panel p-md text-center">
+                        <h2 id="stat-chapters" class="text-glow stat-figure">-</h2>
+                        <p class="text-secondary">Total Chapters</p>
+                    </div>
+                    <div class="glass-panel p-md text-center">
+                        <h2 id="stat-receipts" class="text-glow stat-figure">-</h2>
+                        <p class="text-secondary">Total Receipts</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journey Chapters Panel -->
+            <section id="panel-chapters" class="admin-panel">
+                <div class="panel-header-nav">
+                    <h3>Manage Journey</h3>
+                    <button class="primary-btn btn-sm" onclick="openChapterModal()">+ New Chapter</button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Headline</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chapters-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Receipts Panel -->
+            <section id="panel-receipts" class="admin-panel">
+                <div class="panel-header-nav">
+                    <h3>Manage Receipts</h3>
+                    <button class="primary-btn btn-sm" onclick="openReceiptModal()">+ New Receipt</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Title</th>
+                            <th>Stamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receipts-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Media Library Panel -->
+            <section id="panel-media" class="admin-panel">
+                <h3>Upload Media</h3>
+                <p class="text-secondary mb-md">Upload images, videos, or audio to use in your chapters.</p>
+
+                <div class="glass-panel p-md mb-lg text-center upload-dropzone">
+                    <input type="file" id="media-upload-input" accept="image/*,video/*,audio/*"
+                        class="upload-input-hidden">
+                    <label for="media-upload-input" class="primary-btn mb-sm upload-input-label">Select File</label>
+                    <p id="upload-status" class="text-secondary mt-sm"></p>
+
+                    <div id="upload-progress-container" class="mt-sm progress-track">
+                        <div id="upload-progress-bar" class="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div id="media-gallery" class="grid-2-col">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Messages Panel -->
+            <section id="panel-messages" class="admin-panel">
+                <h3>Contact Form Submissions</h3>
+                <table class="data-table mt-md">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Name / Org</th>
+                            <th>Purpose</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody id="messages-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Appearance Panel -->
+            <section id="panel-appearance" class="admin-panel">
+                <div class="flex-between align-center mb-md">
+                    <div>
+                        <h3>Site Appearance</h3>
+                        <p class="text-secondary">Customize the look and feel of your portfolio.</p>
+                    </div>
+                    <button id="save-appearance-btn" class="primary-btn pulse-glow">Save Changes</button>
+                </div>
+
+                <div class="grid-2-col">
+                    <div class="glass-panel p-md">
+                        <h4 class="mb-sm">Color Theme</h4>
+
+                        <div class="form-group">
+                            <label for="color-bg" class="form-label">Background Color</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="color-bg" class="color-picker" value="#050505">
+                                <span class="text-xs text-secondary" id="color-bg-hex">#050505</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-sm">
+                            <label for="color-surface" class="form-label">Surface Color (Cards)</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="color-surface" class="color-picker" value="#141419">
+                                <span class="text-xs text-secondary" id="color-surface-hex">#141419</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-sm">
+                            <label for="color-accent" class="form-label">Accent Color (Glows/Buttons)</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="color-accent" class="color-picker" value="#6f86ff">
+                                <span class="text-xs text-secondary" id="color-accent-hex">#6f86ff</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-md">
+                        <h4 class="mb-sm">Typography (Advanced)</h4>
+
+                        <div class="form-group">
+                            <label for="color-text-primary" class="form-label">Primary Text Color</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="color-text-primary" class="color-picker" value="#ffffff">
+                                <span class="text-xs text-secondary" id="color-text-primary-hex">#ffffff</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-sm">
+                            <label for="color-text-secondary" class="form-label">Secondary Text Color</label>
+                            <div class="color-picker-group">
+                                <input type="color" id="color-text-secondary" class="color-picker" value="#a0a0b0">
+                                <span class="text-xs text-secondary" id="color-text-secondary-hex">#a0a0b0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-md mt-md">
+                        <h4 class="mb-sm">Typography (Fonts)</h4>
+
+                        <div class="form-group">
+                            <label for="font-heading" class="form-label">Heading Font</label>
+                            <select id="font-heading" class="admin-select-input">
+                                <option value="'Syne', sans-serif">Syne</option>
+                                <option value="'Inter', sans-serif">Inter</option>
+                                <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+                                <option value="'Playfair Display', serif">Playfair Display</option>
+                                <option value="'Oswald', sans-serif">Oswald</option>
+                                <option value="'Cinzel', serif">Cinzel</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mt-sm">
+                            <label for="font-body" class="form-label">Body Font</label>
+                            <select id="font-body" class="admin-select-input">
+                                <option value="'Inter', sans-serif">Inter</option>
+                                <option value="'Roboto', sans-serif">Roboto</option>
+                                <option value="'Open Sans', sans-serif">Open Sans</option>
+                                <option value="'Lato', sans-serif">Lato</option>
+                                <option value="'Merriweather', serif">Merriweather</option>
+                                <option value="'Work Sans', sans-serif">Work Sans</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-md mt-md">
+                        <h4 class="mb-sm">Custom Cursor</h4>
+
+                        <div class="form-group">
+                            <label for="cursor-style" class="form-label">Cursor Style</label>
+                            <select id="cursor-style" class="admin-select-input">
+                                <option value="default">Default OS Cursor</option>
+                                <option value="dot">Minimal Dot (Tracks Mouse)</option>
+                                <option value="ring">Hollow Ring (Tracks Mouse)</option>
+                                <option value="glow">Soft Glow (Tracks Mouse)</option>
+                                <option value="heart">Romantic Heart (Tracks Mouse)</option>
+                            </select>
+                            <div class="form-group mt-sm">
+                                <label for="color-cursor" class="form-label">Cursor Color</label>
+                                <div class="color-picker-group">
+                                    <input type="color" id="color-cursor" class="color-picker" value="#ff3f8b">
+                                    <span class="text-xs text-secondary" id="color-cursor-hex">#ff3f8b</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-secondary mt-xs">Note: This color affects your custom cursor.</p>
+                        </div>
+                    </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Chapter Modal -->
+    <div id="chapter-modal" class="admin-modal-overlay">
+        <div class="modal-content glass-panel admin-modal-box">
+            <button class="admin-modal-close" onclick="closeModal('chapter-modal')">&times;</button>
+            <h3 id="chapter-modal-title" class="mb-md">Add Chapter</h3>
+
+            <form id="chapter-form">
+                <input type="hidden" id="chapter-id">
+
+                <div class="form-group mb-sm">
+                    <label for="chapter-order" class="admin-form-label">Order ID (e.g. 01)</label>
+                    <input type="text" id="chapter-order" required class="cyber-input w-full admin-form-input">
+                </div>
+
+                <div class="form-group mb-sm">
+                    <label for="chapter-headline" class="admin-form-label">Headline</label>
+                    <input type="text" id="chapter-headline" required class="cyber-input w-full admin-form-input">
+                </div>
+
+                <div class="form-group mb-sm">
+                    <label for="chapter-body" class="admin-form-label">Body Text (HTML allowed)</label>
+                    <textarea id="chapter-body" rows="6" required
+                        class="cyber-input w-full admin-form-input"></textarea>
+                </div>
+
+                <div class="form-group mb-sm">
+                    <label for="chapter-module-type" class="admin-form-label">Module Type</label>
+                    <select id="chapter-module-type" class="cyber-input w-full admin-select-input"
+                        onchange="toggleModuleFields()">
+                        <option value="standard">Standard (Text + Media)</option>
+                        <option value="embed">Embedded Link (YouTube/Spotify etc)</option>
+                        <option value="gallery">Social Link Gallery</option>
+                    </select>
+                </div>
+
+                <div id="module-standard-fields">
+                    <div class="grid-2-col gap-sm mb-sm">
+                        <div class="form-group">
+                            <label for="chapter-media" class="admin-form-label">Media URL (.mp4 or image)</label>
+                            <input type="url" id="chapter-media" class="cyber-input w-full admin-form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="chapter-media-type" class="admin-form-label">Media Type</label>
+                            <select id="chapter-media-type" class="cyber-input w-full admin-select-input">
+                                <option value="video">Video</option>
+                                <option value="image">Image</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-md">
+                        <label for="chapter-pullquote" class="admin-form-label">Pull Quote (Optional)</label>
+                        <input type="text" id="chapter-pullquote" class="cyber-input w-full admin-form-input">
+                    </div>
+                </div>
+
+                <div id="module-embed-fields" class="mb-md hidden">
+                    <div class="form-group">
+                        <label for="chapter-embed-code" class="admin-form-label">Embed URL or Iframe Code</label>
+                        <textarea id="chapter-embed-code" rows="4" class="cyber-input w-full admin-form-input"
+                            placeholder="Paste full <iframe> code here..."></textarea>
+                    </div>
+                </div>
+
+                <div id="module-gallery-fields" class="mb-md hidden">
+                    <div class="form-group">
+                        <label for="chapter-gallery-links" class="admin-form-label">Social/Gallery Links (One per
+                            line)</label>
+                        <textarea id="chapter-gallery-links" rows="6" class="cyber-input w-full admin-form-input"
+                            placeholder="https://instagram.com/user&#10;https://x.com/user&#10;https://linkedin.com/in/user"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-btn pulse-glow w-full">Save Chapter</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div id="receipt-modal" class="admin-modal-overlay">
+        <div class="modal-content glass-panel admin-modal-box">
+            <button class="admin-modal-close" onclick="closeModal('receipt-modal')">&times;</button>
+            <h3 id="receipt-modal-title" class="mb-md">Add Receipt</h3>
+
+            <form id="receipt-form">
+                <input type="hidden" id="receipt-id">
+
+                <div class="grid-2-col gap-sm mb-sm">
+                    <div class="form-group">
+                        <label for="receipt-category" class="admin-form-label">Category (e.g. Press, Grants)</label>
+                        <input type="text" id="receipt-category" required class="cyber-input w-full admin-form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="receipt-stamp" class="admin-form-label">Stamp / Date</label>
+                        <input type="text" id="receipt-stamp" required class="cyber-input w-full admin-form-input">
+                    </div>
+                </div>
+
+                <div class="form-group mb-sm">
+                    <label for="receipt-title" class="admin-form-label">Title</label>
+                    <input type="text" id="receipt-title" required class="cyber-input w-full admin-form-input">
+                </div>
+
+                <div class="form-group mb-sm">
+                    <label for="receipt-desc" class="admin-form-label">Small Description</label>
+                    <input type="text" id="receipt-desc" class="cyber-input w-full admin-form-input">
+                </div>
+
+                <div class="form-group mb-md">
+                    <label for="receipt-link" class="admin-form-label">External URL</label>
+                    <input type="url" id="receipt-link" class="cyber-input w-full admin-form-input">
+                </div>
+
+                <button type="submit" class="primary-btn pulse-glow w-full">Save Receipt</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDK (ES Modules) -->
+    <script type="module" src="admin.js"></script>
+</body>
+
+</html>

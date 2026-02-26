@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Hannah Lucas | I don't wait. I build.</title>
+    <meta name="description" content="Portfolio of Hannah Lucas. Innovator, founder, and mental health advocate.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Access Toggles -->
+    <div class="access-controls z-max">
+        <button id="toggle-sound" class="cyber-button micro-hover" aria-pressed="true">
+            <span class="btn-text">Sound: On</span>
+        </button>
+        <button id="toggle-motion" class="cyber-button micro-hover" aria-pressed="false">
+            <span class="btn-text">Calm mode</span>
+        </button>
+        <a href="#receipts" class="skip-link cyber-link">Show me the receipts</a>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loader" class="loading-screen z-max">
+        <div class="loader-content">
+            <h1 class="loader-line-1 text-glow">Initializing brilliance...</h1>
+            <p class="loader-line-2">Loading receipts.</p>
+            <div class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+            <p class="loader-caption">Please remain iconic.</p>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav z-high">
+        <div class="nav-links">
+            <a href="#home" class="nav-link active">Home</a>
+            <a href="#journey" class="nav-link">Journey</a>
+            <a href="#receipts" class="nav-link">Receipts</a>
+            <a href="#speaking" class="nav-link">Speaking</a>
+            <a href="#impact" class="nav-link">Impact</a>
+            <a href="#press" class="nav-link">Press Kit</a>
+            <a href="#contact" class="nav-link">Contact</a>
+        </div>
+        <div class="nav-cta">
+            <button class="primary-btn pulse-glow">BOOK HANNAH</button>
+        </div>
+        <!-- Mobile Sticky CTA -->
+        <div class="mobile-sticky-cta">
+            <button class="mobile-btn">Start the Journey</button>
+        </div>
+    </nav>
+
+    <!-- App Container -->
+    <main id="app-container">
+
+        <!-- HOME SECTION -->
+        <section id="home" class="view-section active">
+
+            <!-- HERO -->
+            <header class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title micro-hover">I don't wait. <br>I build.</h1>
+                    <p class="hero-subhead">Founder energy. Human-first impact. Big personality. Bigger results.</p>
+                    <div class="hero-ctas">
+                        <button class="primary-btn pulse-glow">START THE JOURNEY</button>
+                        <a href="#receipts" class="cyber-button micro-hover">SHOW ME THE RECEIPTS</a>
+                    </div>
+                    <a href="#press" class="tertiary-link micro-hover">Press? Producers? Partners? &rarr;</a>
+                    <p class="promise-line">"I'm not here to fit a role. I'm here to change the world."</p>
+                </div>
+
+                <div class="scroll-cue micro-hover">
+                    <span class="cue-text">Scroll. I'll show you.</span>
+                    <div class="scrolldown-line"></div>
+                </div>
+            </header>
+
+            <!-- RECEIPTS STRIP -->
+            <section class="receipts-strip">
+                <div class="strip-container">
+
+                    <div class="strip-card micro-hover">
+                        <h3 class="card-title">2010 &mdash; Hannah Helps Haiti</h3>
+                        <p class="card-sub">4th grade. Nationwide blanket drive. Big goal.</p>
+                        <div class="card-expand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+
+                    <div class="strip-card micro-hover">
+                        <h3 class="card-title">notOK &mdash; built from real life</h3>
+                        <p class="card-sub">A crisis-support tool designed for the moment words fail.</p>
+                        <div class="card-expand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+
+                    <div class="strip-card micro-hover">
+                        <h3 class="card-title">2020 &mdash; We Are Well Prom</h3>
+                        <p class="card-sub">$50K+ raised in two weeks. Cash grants + scholarships.</p>
+                        <div class="card-expand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+
+                    <div class="strip-card micro-hover">
+                        <h3 class="card-title">Stages + screens</h3>
+                        <p class="card-sub">Media features. Keynotes. Leadership platforms.</p>
+                        <div class="card-expand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+
+                    <div class="strip-card micro-hover">
+                        <h3 class="card-title">What's next</h3>
+                        <p class="card-sub">I'm just getting started.</p>
+                        <div class="card-expand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg></div>
+                    </div>
+
+                    <div class="strip-cta">
+                        <button class="cyber-button micro-hover" onclick="location.hash='#journey'">OPEN THE
+                            JOURNEY</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- WHY ME -->
+            <section class="why-me">
+                <div class="content-wrapper">
+                    <h2 class="section-title text-glow">Here's the thing about me: I finish.</h2>
+                    <div class="body-copy">
+                        <p>I don't brainstorm problems. I build solutions.</p>
+                        <p>I don't wait for a crisis to pass. I turn it into momentum.</p>
+                        <p>I don't shrink my presence to make other people comfortable.</p>
+                        <p class="impact-text">I use it to make change unavoidable.</p>
+                    </div>
+                    <a href="#receipts" class="primary-btn mt-md inline-btn micro-hover">See the proof</a>
+                </div>
+            </section>
+
+        </section> <!-- /HOME SECTION -->
+
+        <!-- JOURNEY SECTION (SCROLLYTELLING) -->
+        <section id="journey" class="view-section">
+
+            <div class="journey-progress z-high">
+                <span id="chapter-indicator">CH. 1 / 7</span>
+                <div class="journey-progress-bar">
+                    <div class="journey-progress-fill" id="journey-fill"></div>
+                </div>
+            </div>
+
+            <!-- DYNAMIC CHAPTERS INJECTED HERE -->
+            <div id="journey-dynamic-container"></div>
+
+        </section> <!-- /JOURNEY SECTION -->
+
+        <!-- RECEIPTS SECTION -->
+        <section id="receipts" class="view-section">
+            <div class="content-wrapper pt-xl">
+                <header class="section-header text-center mb-lg">
+                    <h2 class="section-title text-glow">Receipts. Organized.</h2>
+                    <p class="section-subtitle">Proof of impact&mdash;filterable, clickable, undeniable.</p>
+                </header>
+
+                <div class="filter-bar mb-md">
+                    <button class="filter-btn active cyber-button micro-hover" data-filter="all">All</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="media">Media</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="awards">Awards</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="speaking">Speaking</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="fundraising">Fundraising</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="tech">Tech</button>
+                    <button class="filter-btn cyber-button micro-hover" data-filter="community">Community</button>
+                </div>
+
+                <div class="receipts-grid" id="receipts-dynamic-container">
+                    <!-- DYNAMIC RECEIPTS INJECTED HERE -->
+                </div>
+
+                <div class="text-center mt-xl">
+                    <p class="impact-line">"Proof isn't optional. It's my brand."</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- IMPACT PAGE (Partners/Sponsors) -->
+        <section id="impact" class="view-section">
+            <div class="content-wrapper pt-xl">
+                <header class="section-header text-center mb-lg">
+                    <h2 class="section-title text-glow">I build what people wish existed.</h2>
+                    <p class="section-subtitle">If you want a campaign, hire marketing. If you want change, partner with
+                        me.</p>
+                </header>
+
+                <div class="impact-sections">
+                    <!-- 1 -->
+                    <div class="impact-block glass-panel mb-lg">
+                        <h3 class="impact-block-title text-glow">Tech For Good: notOK</h3>
+                        <div class="impact-grid">
+                            <div class="impact-col">
+                                <h4 class="accent-color">Problem</h4>
+                                <p>People need help fast. Shame moves faster than support.</p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What I built</h4>
+                                <p>notOK: a direct, usable crisis-support tool built for real life.</p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What changed</h4>
+                                <p>Made reaching out simple, immediate, and human.</p>
+                            </div>
+                        </div>
+                        <div class="partner-ask mt-md">
+                            <p><strong>Partner ask:</strong> Want to expand access, education, or distribution? Let's
+                                build.</p>
+                            <a href="#contact" class="primary-btn mt-sm inline-btn">Partner with Hannah</a>
+                        </div>
+                    </div>
+
+                    <!-- 2 -->
+                    <div class="impact-block glass-panel mb-lg">
+                        <h3 class="impact-block-title text-glow">Rapid Response Fundraising: We Are Well Prom</h3>
+                        <div class="impact-grid">
+                            <div class="impact-col">
+                                <h4 class="accent-color">Problem</h4>
+                                <p>Isolation crushed students.</p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What I built</h4>
+                                <p>A virtual prom with mental health at the center&mdash;and money in students' hands.
+                                </p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What changed</h4>
+                                <p>$50,000+ redistributed as cash grants/scholarships.</p>
+                            </div>
+                        </div>
+                        <div class="partner-ask mt-md">
+                            <p><strong>Partner ask:</strong> Sponsors don't just get logos here. They fund futures.</p>
+                            <a href="#contact" class="primary-btn mt-sm inline-btn">Sponsor the next initiative</a>
+                        </div>
+                    </div>
+
+                    <!-- 3 -->
+                    <div class="impact-block glass-panel mb-lg">
+                        <h3 class="impact-block-title text-glow">Community Mobilization: Hannah Helps Haiti</h3>
+                        <div class="impact-grid">
+                            <div class="impact-col">
+                                <h4 class="accent-color">Problem</h4>
+                                <p>Disaster makes people feel powerless.</p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What I built</h4>
+                                <p>A nationwide blanket drive&mdash;built as a child, executed as a leader.</p>
+                            </div>
+                            <div class="impact-col">
+                                <h4 class="accent-color">What changed</h4>
+                                <p>Mobilized schools and communities into action.</p>
+                            </div>
+                        </div>
+                        <div class="partner-ask mt-md">
+                            <a href="#contact" class="primary-btn mt-sm inline-btn">Build a mobilization campaign with
+                                me</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <!-- SPEAKING PAGE -->
+        <section id="speaking" class="view-section">
+            <div class="content-wrapper pt-xl">
+                <header class="section-header text-center mb-lg">
+                    <h2 class="section-title text-glow">Bring me in. I'll change the room.</h2>
+                    <p class="section-subtitle">I don't give speeches. I deliver shifts&mdash;mindset, language, action.
+                    </p>
+                </header>
+
+                <div class="speaking-content grid-2-col">
+                    <div class="speaking-outcomes glass-panel p-md">
+                        <h3 class="mb-sm text-glow">The Outcomes</h3>
+                        <ul class="styled-list">
+                            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg> <span>Audience leaves with language they can use immediately.</span></li>
+                            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg> <span>Leaders leave with a blueprint to respond faster.</span></li>
+                            <li><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg> <span>People leave feeling seen&mdash;and stronger.</span></li>
+                        </ul>
+
+                        <div class="mt-lg">
+                            <a href="#contact" class="primary-btn pulse-glow w-full text-center inline-btn">BOOK
+                                HANNAH</a>
+                            <p class="micro-copy text-center mt-sm">Tell me the audience. I'll tailor the impact.</p>
+                        </div>
+                    </div>
+
+                    <div class="speaking-talks">
+                        <h3 class="mb-sm text-glow">Signature Talks</h3>
+
+                        <div class="talk-card micro-hover">
+                            <h4>Crisis Into Creation</h4>
+                        </div>
+                        <div class="talk-card micro-hover">
+                            <h4>Support at the Speed of Panic</h4>
+                        </div>
+                        <div class="talk-card micro-hover">
+                            <h4>How to Lead Before You're Invited</h4>
+                        </div>
+                        <div class="talk-card micro-hover">
+                            <h4>Turning Pain Into Power Without Losing Yourself</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRESS KIT PAGE -->
+        <section id="press" class="view-section">
+            <div class="content-wrapper pt-xl">
+                <header class="section-header text-center mb-lg">
+                    <h2 class="section-title text-glow">Press Kit</h2>
+                    <p class="section-subtitle">Fast facts. Approved language. Clean assets.</p>
+                </header>
+
+                <div class="press-grid">
+                    <div class="press-bio glass-panel p-md">
+                        <h3 class="mb-sm text-glow">Quick Bio <span class="micro-copy">(100 words)</span></h3>
+                        <p class="mb-md">"I'm Hannah Lucas—innovator, founder, and mental health advocate. I built my
+                            first nationwide relief initiative in fourth grade, then co-created notOK, a crisis-support
+                            tool designed to help people reach trusted contacts at the exact moment they need help. When
+                            COVID canceled senior milestones, I launched We Are Well Prom and raised $50,000+ in two
+                            weeks to fund cash grants and scholarships for high school students. I speak on resilience,
+                            suicide prevention, and tech-for-good innovation. I don't wait for change. I build it."</p>
+
+                        <h3 class="mb-sm text-glow mt-lg">Full Bio <span class="micro-copy">(300 words)</span></h3>
+                        <p>At my core, I am and have always been a bright light—charismatic, charming, and
+                            future-forward. My energy, genius, and compassion are irreplaceable. I don't just inspire
+                            people; I re-energize everyone who comes into contact with me. I empower them to speak
+                            openly about their struggles while strengthening them to conquer those struggles at the same
+                            time.</p>
+                        <p class="mt-sm">When a chronic illness diagnosis changed my world, bringing loud fear, anxiety,
+                            and depression, I learned something brutal: sometimes you don't have the words when you need
+                            help most. So, I built notOK to make reaching out easier than suffering in silence. I've led
+                            across platforms—from advisory spaces to stages to rooms where decisions get made. I show up
+                            with proof, clarity, and a mission people can feel. Visibility became fuel, and I used it to
+                            scale impact.</p>
+                        <p class="mt-sm">I don't brainstorm problems. I build solutions. I don't shrink my presence to
+                            make other people comfortable. I use it to make change unavoidable. I'm building toward
+                            something bigger than a job title. I'm building legacy. One day, Hannah Lucas will be a
+                            household name.</p>
+                    </div>
+
+                    <div class="press-sidebar ml-md">
+                        <div class="contact-card glass-panel p-md mb-md">
+                            <h3 class="mb-sm text-glow">Direct Contact</h3>
+                            <p class="mb-sm"><strong>Press inquiries:</strong> <br><a href="mailto:press@example.com"
+                                    class="cyber-link">press@example.com</a></p>
+                            <p><strong>Speaking bookings:</strong> <br><a href="mailto:booking@example.com"
+                                    class="cyber-link">booking@example.com</a></p>
+                        </div>
+                        <div class="assets-card glass-panel p-md text-center">
+                            <h3 class="mb-sm text-glow">Assets</h3>
+                            <button class="cyber-button w-full mb-sm micro-hover">Download Headshots</button>
+                            <button class="cyber-button w-full mb-sm micro-hover">Download Brand Assets</button>
+                            <button class="cyber-button w-full micro-hover">Download One-Sheet</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT PAGE -->
+        <section id="contact" class="view-section">
+            <div class="content-wrapper pt-xl">
+                <header class="section-header text-center mb-lg">
+                    <h2 class="section-title text-glow">You found me for a reason.</h2>
+                    <p class="section-subtitle">Book me. Partner with me. Build with me.</p>
+                </header>
+
+                <div class="form-container glass-panel">
+                    <form id="contact-form" class="styled-form">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" required class="cyber-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="org">Organization</label>
+                                <input type="text" id="org" class="cyber-input">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" required class="cyber-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="purpose">Purpose</label>
+                                <div class="select-wrapper">
+                                    <select id="purpose" class="cyber-input" required>
+                                        <option value="" disabled selected>Select purpose...</option>
+                                        <option value="Press">Press</option>
+                                        <option value="Speaking">Speaking</option>
+                                        <option value="Partnership">Partnership</option>
+                                        <option value="Sponsorship">Sponsorship</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="deadline">Deadline / Date <span class="micro-copy">(Optional)</span></label>
+                            <input type="date" id="deadline" class="cyber-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" rows="5" required class="cyber-input"></textarea>
+                        </div>
+
+                        <button type="submit" class="primary-btn pulse-glow w-full mt-md">LET'S BUILD</button>
+
+                        <div id="form-msg" class="form-message mt-md text-glow">
+                            Message received. If this is urgent, say so. I move fast.
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+        <!-- Modals -->
+        <div id="receipt-modal-1" class="modal-container">
+            <div class="modal-backdrop" onclick="this.parentElement.classList.remove('active')"></div>
+            <div class="modal-content glass-panel">
+                <button class="close-modal" aria-label="Close"
+                    onclick="this.parentElement.parentElement.classList.remove('active')">&times;</button>
+                <p class="modal-eyebrow">Christian Science Monitor (Jan 26, 2010)</p>
+                <h3 class="modal-title">Nationwide blanket drive... goal of 10,000 blankets.</h3>
+                <div class="modal-tags mt-sm">
+                    <span class="tag">Disaster relief</span>
+                    <span class="tag">Youth leadership</span>
+                    <span class="tag">Community mobilization</span>
+                </div>
+                <button class="primary-btn mt-md w-full">Read coverage</button>
+                <p class="micro-copy text-center mt-sm">Proof matters. I keep mine.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <span class="footer-name" id="footer-name-hover">Hannah Lucas</span>
+            </div>
+            <div class="footer-right">
+                <a href="#journey" class="nav-link">Journey</a>
+                <a href="#receipts" class="nav-link">Receipts</a>
+                <a href="#press" class="nav-link">Press Kit</a>
+                <a href="#contact" class="nav-link">Book Hannah</a>
+            </div>
+        </div>
+        <div class="footer-tagline">
+            <p class="text-glow">"Keep a close eye on me."</p>
+        </div>
+    </footer>
+
+    <!-- Custom Cursor -->
+    <div id="cursor-aura" class="cursor-aura"></div>
+
+    <!-- Script -->
+    <!-- Firebase SDKs for Dynamic Content -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA44JCcIGO9xcIPd8UpqMegHy_6Txl3DHM",
+            authDomain: "hannahlucasportfolio.firebaseapp.com",
+            projectId: "hannahlucasportfolio",
+            storageBucket: "hannahlucasportfolio.firebasestorage.app",
+            messagingSenderId: "663067156333",
+            appId: "1:663067156333:web:c50699e77e606953e20464"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Expose db to window for app.js to use
+        window.portfolioDB = db;
+    </script>
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
