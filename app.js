@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 // Feature explicitly requested by User: Magenta Heart Cursor default
                 const root = document.documentElement;
-                root.style.setProperty('--cursor-color', '#bb0099');
+                root.style.setProperty('--cursor-color', '#d500b5'); // Dark electric magenta
                 document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow');
                 document.body.classList.add('cursor-heart');
             }

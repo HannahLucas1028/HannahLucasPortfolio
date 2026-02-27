@@ -120,7 +120,7 @@ async function syncAppearance() {
             }
         } else {
             // Feature explicitly requested by User: Magenta Heart Cursor default
-            accentGlowSelector.style.setProperty('--cursor-color', '#bb0099');
+            accentGlowSelector.style.setProperty('--cursor-color', '#d500b5');
             document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow');
             document.body.classList.add('cursor-heart');
         }
@@ -676,7 +676,6 @@ function applyAppearanceToAdmin(data) {
 
 
 // --- Custom Cursor Admin Init ---
-const cursorAura = document.querySelector('.cursor-aura');
 
 function initAdminCursor() {
     // Only on non-touch devices
