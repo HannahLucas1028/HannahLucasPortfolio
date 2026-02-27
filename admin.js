@@ -81,6 +81,46 @@ const navItems = document.querySelectorAll('.admin-nav-item');
 const panels = document.querySelectorAll('.admin-panel');
 const panelTitle = document.getElementById('panel-title');
 
+// --- Cursor Logic ---
+const cursorAura = document.getElementById('cursor-aura');
+
+if (cursorAura) {
+    document.addEventListener('mousemove', (e) => {
+        requestAnimationFrame(() => {
+            cursorAura.style.left = `${e.clientX}px`;
+            cursorAura.style.top = `${e.clientY}px`;
+        });
+    });
+
+    const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, .admin-nav-item');
+    interactiveElements.forEach(el => {
+        el.addEventListener('mouseenter', () => {
+            cursorAura.classList.add('hover-active');
+        });
+        el.addEventListener('mouseleave', () => {
+            cursorAura.classList.remove('hover-active');
+        });
+    });
+}
+
+async function syncAppearance() {
+    try {
+        const docSnap = await getDoc(doc(db, "settings", "appearance"));
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const accentGlowSelector = document.querySelector(':root');
+            if (data.accentColor) {
+                accentGlowSelector.style.setProperty('--accent-glow', data.accentColor);
+            }
+            if (data.cursorStyle) {
+                document.body.className = `cursor-${data.cursorStyle}`;
+            }
+        }
+    } catch (e) { }
+}
+
+syncAppearance();
+
 navItems.forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
