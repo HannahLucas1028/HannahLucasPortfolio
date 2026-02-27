@@ -441,6 +441,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 applyAppearanceToFrontend(data);
+            } else {
+                // Feature explicitly requested by User: Magenta Heart Cursor default
+                const root = document.documentElement;
+                root.style.setProperty('--cursor-color', '#bb0099');
+                document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow');
+                document.body.classList.add('cursor-heart');
             }
         } catch (error) {
             console.error("Error loading appearance settings on frontend:", error);
@@ -490,9 +496,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (data.fontBody) {
             root.style.setProperty('--font-body', data.fontBody);
         }
+        // Apply Default Cursor Styles
         if (data.cursorStyle) {
             document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow', 'cursor-heart');
             document.body.classList.add(`cursor-${data.cursorStyle}`);
+        } else {
+            document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow'); // Remove other potential defaults
+            document.body.classList.add('cursor-heart');
         }
     }
 

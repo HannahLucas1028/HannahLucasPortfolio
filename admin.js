@@ -106,17 +106,27 @@ if (cursorAura) {
 async function syncAppearance() {
     try {
         const docSnap = await getDoc(doc(db, "settings", "appearance"));
+        const accentGlowSelector = document.querySelector(':root');
         if (docSnap.exists()) {
             const data = docSnap.data();
-            const accentGlowSelector = document.querySelector(':root');
             if (data.accentColor) {
                 accentGlowSelector.style.setProperty('--accent-glow', data.accentColor);
             }
             if (data.cursorStyle) {
                 document.body.className = `cursor-${data.cursorStyle}`;
             }
+            if (data.colorCursor) {
+                accentGlowSelector.style.setProperty('--cursor-color', data.colorCursor);
+            }
+        } else {
+            // Feature explicitly requested by User: Magenta Heart Cursor default
+            accentGlowSelector.style.setProperty('--cursor-color', '#bb0099');
+            document.body.classList.remove('cursor-default', 'cursor-dot', 'cursor-ring', 'cursor-glow');
+            document.body.classList.add('cursor-heart');
         }
-    } catch (e) { }
+    } catch (e) {
+        console.error("Error syncing appearance:", e);
+    }
 }
 
 syncAppearance();

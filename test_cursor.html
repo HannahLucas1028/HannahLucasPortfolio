@@ -2,8 +2,7 @@
 <html>
 <head>
     <style>
-        body { background: #000; height: 100vh; margin: 0; cursor: none; }
-        .cursor-aura {
+        body.cursor-heart .cursor-aura {
             display: block;
             position: fixed;
             top: 50%;
@@ -19,7 +18,10 @@
         }
     </style>
 </head>
-<body>
+<body class="cursor-heart">
     <div class="cursor-aura"></div>
+    <script>
+        console.log("Cursor classes set. Body classes:", document.body.className);
+    </script>
 </body>
 </html>
