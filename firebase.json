@@ -6,22 +6,5 @@
       "**/.*",
       "**/node_modules/**"
     ]
-  },
-  "firestore": {
-    "database": "(default)",
-    "location": "nam5",
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  },
-  "auth": {
-    "providers": {
-      "googleSignIn": {
-        "oAuthBrandDisplayName": "Hannah Lucas Admin",
-        "supportEmail": "2455hannah@gmail.com"
-      }
-    }
   }
 }

@@ -41,7 +41,7 @@
                 <a href="#overview" class="admin-nav-item active" data-target="panel-overview">Overview</a>
                 <a href="#appearance" class="admin-nav-item" data-target="panel-appearance">Appearance</a>
                 <a href="#chapters" class="admin-nav-item" data-target="panel-chapters">Journey Chapters</a>
-                <a href="#receipts" class="admin-nav-item" data-target="panel-receipts">Receipts</a>
+                <a href="#verifications" class="admin-nav-item" data-target="panel-verifications">Verification Entries</a>
                 <a href="#media" class="admin-nav-item" data-target="panel-media">Media Library</a>
                 <a href="#messages" class="admin-nav-item" data-target="panel-messages">Messages</a>
             </nav>
@@ -66,8 +66,8 @@
                         <p class="text-secondary">Total Chapters</p>
                     </div>
                     <div class="glass-panel p-md text-center">
-                        <h2 id="stat-receipts" class="text-glow stat-figure">-</h2>
-                        <p class="text-secondary">Total Receipts</p>
+                        <h2 id="stat-verifications" class="text-glow stat-figure">-</h2>
+                        <p class="text-secondary">Verification Entries</p>
                     </div>
                 </div>
             </section>
@@ -93,11 +93,15 @@
                 </table>
             </section>
 
-            <!-- Receipts Panel -->
-            <section id="panel-receipts" class="admin-panel">
+            <!-- Verifications Panel -->
+            <section id="panel-verifications" class="admin-panel">
                 <div class="panel-header-nav">
-                    <h3>Manage Receipts</h3>
-                    <button class="primary-btn btn-sm" onclick="openReceiptModal()">+ New Receipt</button>
+                    <h3>Manage Verification Archive</h3>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <input type="file" id="csv-upload-input" accept=".csv" style="display:none;">
+                        <button class="cyber-button btn-sm" onclick="document.getElementById('csv-upload-input').click()">Bulk Import CSV</button>
+                        <button class="primary-btn btn-sm" onclick="openReceiptModal()">+ New Entry</button>
+                    </div>
                 </div>
                 <table class="data-table">
                     <thead>
@@ -108,7 +112,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="receipts-table-body">
+                    <tbody id="verifications-table-body">
                         <!-- Populated by JS -->
                     </tbody>
                 </table>
@@ -244,22 +248,27 @@
                         <h4 class="mb-sm">Custom Cursor</h4>
 
                         <div class="form-group">
-                            <label for="cursor-style" class="form-label">Cursor Style</label>
-                            <select id="cursor-style" class="admin-select-input">
-                                <option value="default">Default OS Cursor</option>
-                                <option value="dot">Minimal Dot (Tracks Mouse)</option>
-                                <option value="ring">Hollow Ring (Tracks Mouse)</option>
-                                <option value="glow">Soft Glow (Tracks Mouse)</option>
-                                <option value="heart">Romantic Heart (Tracks Mouse)</option>
-                            </select>
+
                             <div class="form-group mt-sm">
                                 <label for="color-cursor" class="form-label">Cursor Color</label>
                                 <div class="color-picker-group">
-                                    <input type="color" id="color-cursor" class="color-picker" value="#ff3f8b">
-                                    <span class="text-xs text-secondary" id="color-cursor-hex">#ff3f8b</span>
+                                    <input type="color" id="color-cursor" class="color-picker" value="#d500b5">
+                                    <span class="text-xs text-secondary" id="color-cursor-hex">#d500b5</span>
                                 </div>
                             </div>
                             <p class="text-xs text-secondary mt-xs">Note: This color affects your custom cursor.</p>
+                            
+                            <div class="form-group mt-sm">
+                                <label for="cursor-size" class="form-label">Cursor Size (px)</label>
+                                <input type="range" id="cursor-size" class="w-full" min="10" max="100" value="32">
+                            </div>
+                            <div class="form-group mt-sm">
+                                <label for="cursor-toggle" class="form-label">Enable Custom Cursor</label>
+                                <div class="flex-between mt-xs">
+                                    <span class="text-sm">Active</span>
+                                    <input type="checkbox" id="cursor-toggle" checked style="width:20px;height:20px;">
+                                </div>
+                            </div>
                         </div>
                     </div>
             </section>
@@ -346,52 +355,58 @@
         </div>
     </div>
 
-    <!-- Receipt Modal -->
-    <div id="receipt-modal" class="admin-modal-overlay">
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="admin-modal-overlay">
         <div class="modal-content glass-panel admin-modal-box">
-            <button class="admin-modal-close" onclick="closeModal('receipt-modal')">&times;</button>
-            <h3 id="receipt-modal-title" class="mb-md">Add Receipt</h3>
+            <button class="admin-modal-close" onclick="closeModal('verification-modal')">&times;</button>
+            <h3 id="verification-modal-title" class="mb-md">Add Verification Entry</h3>
 
-            <form id="receipt-form">
-                <input type="hidden" id="receipt-id">
+            <form id="verification-form">
+                <input type="hidden" id="verification-id">
 
                 <div class="grid-2-col gap-sm mb-sm">
                     <div class="form-group">
-                        <label for="receipt-category" class="admin-form-label">Category (e.g. Press, Grants)</label>
-                        <input type="text" id="receipt-category" required class="cyber-input w-full admin-form-input">
+                        <label for="verification-category" class="admin-form-label">Category (e.g. Press, Grants)</label>
+                        <input type="text" id="verification-category" required class="cyber-input w-full admin-form-input">
                     </div>
                     <div class="form-group">
-                        <label for="receipt-stamp" class="admin-form-label">Stamp / Date</label>
-                        <input type="text" id="receipt-stamp" required class="cyber-input w-full admin-form-input">
+                        <label for="verification-stamp" class="admin-form-label">Stamp / Date</label>
+                        <input type="text" id="verification-stamp" required class="cyber-input w-full admin-form-input">
                     </div>
                 </div>
 
                 <div class="form-group mb-sm">
-                    <label for="receipt-title" class="admin-form-label">Title</label>
-                    <input type="text" id="receipt-title" required class="cyber-input w-full admin-form-input">
+                    <label for="verification-title" class="admin-form-label">Title</label>
+                    <input type="text" id="verification-title" required class="cyber-input w-full admin-form-input">
                 </div>
 
                 <div class="form-group mb-sm">
-                    <label for="receipt-desc" class="admin-form-label">Small Description</label>
-                    <input type="text" id="receipt-desc" class="cyber-input w-full admin-form-input">
+                    <label for="verification-desc" class="admin-form-label">Small Description</label>
+                    <input type="text" id="verification-desc" class="cyber-input w-full admin-form-input">
                 </div>
 
                 <div class="form-group mb-md">
-                    <label for="receipt-link" class="admin-form-label">External URL</label>
-                    <input type="url" id="receipt-link" class="cyber-input w-full admin-form-input">
+                    <label for="verification-link" class="admin-form-label">External URL</label>
+                    <input type="url" id="verification-link" class="cyber-input w-full admin-form-input">
                 </div>
 
-                <button type="submit" class="primary-btn pulse-glow w-full">Save Receipt</button>
+                <div class="form-group mb-md" style="border:1px solid rgba(var(--accent-rgb,180,0,122),0.3);padding:0.75rem 1rem;border-radius:6px;background:rgba(var(--accent-rgb,180,0,122),0.06);">
+                    <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+                        <input type="checkbox" id="verification-featured" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent-color,#b4007a);">
+                        <span style="font-size:0.8rem;letter-spacing:0.1em;"> &#11088; FEATURE this entry <span style="opacity:0.6;font-size:0.7rem;">(pins to Home strip)</span></span>
+                    </label>
+                </div>
+                <button type="submit" class="primary-btn pulse-glow w-full">Save Verification Entry</button>
             </form>
         </div>
     </div>
 
     <!-- Custom Cursor -->
-    <div class="cursor-aura"></div>
+    <link rel="stylesheet" href="/pack/04_CURSOR.css">
+    <script src="/pack/05_CURSOR.js"></script>
 
     <!-- Firebase SDK (ES Modules) -->
     <script type="module" src="admin.js"></script>
-    <div id="cursor-aura" class="cursor-aura"></div>
 </body>
 
 </html>

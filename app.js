@@ -5,10 +5,11 @@
 
 import { doc, getDoc, collection, getDocs, addDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
 
     // --- Dynamic Theme Integration (Firebase) ---
-    await loadAppearanceSettings();
+    // Non-blocking: fire and forget so loader starts immediately
+    loadAppearanceSettings();
 
     // --- State ---
     const state = {
@@ -21,21 +22,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mainNav = document.querySelector('.main-nav');
     const toggleSoundBtn = document.getElementById('toggle-sound');
     const toggleMotionBtn = document.getElementById('toggle-motion');
-    const cursorAura = document.getElementById('cursor-aura');
 
-    // --- Loading Sequence ---
-    // Simulate initial loading sequence
-    setTimeout(() => {
-        // Fade out loader
-        loader.style.opacity = '0';
-
-        // Show Nav
+    // --- Loading Sequence (GSAP) ---
+    const loaderCounter = document.querySelector('.loader-counter');
+    const loaderText = document.querySelector('.loader-text');
+    
+    let counter = { val: 0 };
+    
+    if (loaderCounter && window.gsap) {
+        gsap.to(counter, {
+            val: 100,
+            roundProps: "val",
+            duration: 2.5,
+            ease: "power2.inOut",
+            onUpdate: function() {
+                loaderCounter.textContent = counter.val + "%";
+                if (counter.val > 80) {
+                    loaderText.textContent = "ANTI-GRAVITY READY";
+                    loaderText.setAttribute('data-text', "ANTI-GRAVITY READY");
+                    loaderText.classList.add('text-glow');
+                }
+            },
+            onComplete: function() {
+                gsap.to(loader, {
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        loader.style.display = 'none';
+                        mainNav.classList.add('visible');
+                        initAesthetics();
+                    }
+                });
+            }
+        });
+    } else {
+        // Fallback if GSAP fails to load
         setTimeout(() => {
-            loader.style.display = 'none';
-            mainNav.classList.add('visible');
-            initAesthetics();
-        }, 800); // Wait for fade out
-    }, 3200); // 3-second loader sequence
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                mainNav.classList.add('visible');
+                initAesthetics();
+            }, 800);
+        }, 2000);
+    }
 
     // --- Accessibility Toggles ---
     toggleMode();
@@ -45,6 +76,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             state.soundOn = !state.soundOn;
             toggleSoundBtn.setAttribute('aria-pressed', state.soundOn);
             toggleSoundBtn.querySelector('.btn-text').textContent = state.soundOn ? "Sound: On" : "Sound: Off";
+            
+            document.querySelectorAll('.journey-video').forEach(video => {
+                video.muted = !state.soundOn;
+            });
+
             // play interaction sound if turned on?
             if (state.soundOn) playTickSound();
         });
@@ -62,42 +98,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // --- Custom Cursor ---
-    function initCursor() {
+    // --- Hover Sounds ---
+    function initHoverSounds() {
         // Only on non-touch devices
         if (window.matchMedia("(pointer: fine)").matches) {
-            document.addEventListener('mousemove', (e) => {
-                // Use requestAnimationFrame for smoother following
-                requestAnimationFrame(() => {
-                    cursorAura.style.left = e.clientX + 'px';
-                    cursorAura.style.top = e.clientY + 'px';
-                });
-            });
-
-            // Hover effects for links, buttons
             const interactiveElements = document.querySelectorAll('a, button, .micro-hover');
 
             interactiveElements.forEach(el => {
                 el.addEventListener('mouseenter', () => {
-                    cursorAura.classList.add('hover-active');
                     if (state.soundOn && !state.calmMode) {
                         playSubtleHoverSound();
                     }
                 });
-
-                el.addEventListener('mouseleave', () => {
-                    cursorAura.classList.remove('hover-active');
-                });
             });
-        } else {
-            // Disable cursor aura on mobile
-            cursorAura.style.display = 'none';
         }
     }
 
     // Initialize aesthetics after loader, making sure dynamic content is loaded FIRST
     async function initAesthetics() {
-        initCursor();
+        initHoverSounds(); 
         await loadDynamicContent(); // Wait for DOM to be populated
         initGSAPAnimations();
     }
@@ -113,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await Promise.all([
                 loadAppearanceSettings(),
                 loadJourneyChapters(),
-                loadReceipts()
+                loadVerifications()
             ]);
         } catch (error) {
             console.error("Error loading dynamic content:", error);
@@ -161,10 +180,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <p class="chapter-body">${data.body}</p>
                                 <div class="mt-md">
                                     <p class="impact-text">${data.impactLine}</p>
-                                    <button class="cyber-button mt-sm micro-hover" onclick="document.getElementById('receipt-modal-1').classList.add('active')">SEE PROOF</button>
+                                    <button class="cyber-button mt-sm micro-hover" onclick="document.getElementById('verification-modal-1').classList.add('active')">OPEN VALIDATION</button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="impact-spike flashbulb" style="padding:2.5rem 2rem;margin-top:0;">
+                        <p class="spike-title">10,000 BLANKETS.</p>
+                        <p class="spike-sub">Haiti, 2010. She was in fourth grade. Nationwide.</p>
                     </div>`;
             } else if (data.order === 3) {
                 innerContent = `
@@ -198,16 +221,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <h3 class="mb-sm">Try it: The 1-Tap Experience</h3>
                                     <button class="primary-btn pulse-glow" id="demo-btn">I NEED HELP</button>
                                     <div class="demo-sequence mt-sm" id="demo-sequence">
-                                        <p class="typing-text">Locating...</p>
-                                        <p class="typing-text delay-1">Alerting 5 trusted contacts...</p>
+                                        <p class="typing-text">Signal sent…</p>
+                                        <p class="typing-text delay-1">Trusted contacts alerted…</p>
                                         <p class="typing-text delay-2 text-glow">Help is on the way.</p>
                                     </div>
                                 ` : ''}
                             </div>
                         </div>
                         <div class="mt-xl text-center">
-                            <p class="impact-text">${data.proofLine}</p>
+                            <p class="impact-text">${data.validationLine}</p>
                             ${data.tertiaryLink ? `<a href="${data.tertiaryLink.href}" class="tertiary-link mt-sm inline-btn">${data.tertiaryLink.text}</a>` : ''}
+                            ${data.micro ? `<p class="micro-cta mt-md text-secondary">${data.micro}</p>` : ''}
                         </div>
                     </div>`;
             } else if (data.order === 5) {
@@ -231,6 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             </div>
                         </div>
                         <p class="micro-cta mt-xl text-center text-secondary">${data.transitionLine}</p>
+                        ${data.micro ? `<p class="micro-cta mt-md text-center text-secondary">${data.micro}</p>` : ''}
                     </div>`;
             } else if (data.order === 6) {
                 let grantWallHtml = data.grantWall ? data.grantWall.map(g => `<div class="grant-tile">${g}</div>`).join('') : '';
@@ -245,12 +270,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <div class="mt-md p-md glass-panel">
                                     <p class="impact-text-sm">${data.impactLineHtml}</p>
                                 </div>
+                                ${data.micro ? `<p class="micro-cta mt-md text-secondary">${data.micro}</p>` : ''}
                             </div>
                             <div class="grant-wall">
                                 <h3 class="mb-sm text-center">${data.subheadAlt}</h3>
                                 <div class="grant-tiles">
                                     ${grantWallHtml}
                                 </div>
+                            </div>
+                        </div>
+                        <div class="impact-counter" id="ch6-counter" style="margin:2rem 0;">
+                            <div class="counter-node">
+                                <span class="counter-num" data-target="14">0</span>
+                                <span class="counter-label">Days</span>
+                            </div>
+                            <span class="counter-arrow">→</span>
+                            <div class="counter-node">
+                                <span class="counter-num" data-target="50" data-prefix="$" data-suffix="K+">$0K+</span>
+                                <span class="counter-label">Raised</span>
+                            </div>
+                            <span class="counter-arrow">→</span>
+                            <div class="counter-node">
+                                <span class="counter-num" data-static="true">Grants</span>
+                                <span class="counter-label">Delivered</span>
                             </div>
                         </div>
                         <div class="text-center mt-lg">
@@ -282,7 +324,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     ${data.bookTheme.powerQuote}
                                 </p>
                             ` : ''}
-                            <div class="final-ctas justify-center">
+                            <div class="dossier-unlock mt-lg mb-lg">
+                                <span class="dossier-label">CHAPTER 7 — CLEARANCE GRANTED</span>
+                                <h2 class="dossier-title">NEXT ERA: HISTORY MAKER.</h2>
+                            </div>
+                        <div class="final-ctas justify-center">
                                 <a href="#contact" class="primary-btn inline-btn">BOOK ME</a>
                                 <a href="#press" class="cyber-button inline-btn">PRESS KIT</a>
                             </div>
@@ -316,7 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="mt-md">
                             ${data.mediaType === 'image'
                             ? `<img src="${data.mediaUrl}" alt="Chapter Media" class="w-full glass-panel" style="max-height: 500px; object-fit: cover; margin: 0 auto;">`
-                            : `<video src="${data.mediaUrl}" controls class="w-full glass-panel" style="max-height: 500px; margin: 0 auto;"></video>`}
+                            : `<video src="${data.mediaUrl}" loop muted playsinline class="w-full glass-panel journey-video" style="max-height: 500px; margin: 0 auto;"></video>`}
                         </div>
                     `;
                 }
@@ -339,22 +385,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         container.innerHTML = html;
+
+        // CH6 Counter Animation — trigger on scroll
+        const ch6Counter = document.getElementById('ch6-counter');
+        if (ch6Counter) {
+            const counterNums = ch6Counter.querySelectorAll('.counter-num[data-target]');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        counterNums.forEach(el => {
+                            const target = parseInt(el.dataset.target, 10);
+                            const prefix = el.dataset.prefix || '';
+                            const suffix = el.dataset.suffix || '';
+                            let current = 0;
+                            const step = Math.ceil(target / 40);
+                            const timer = setInterval(() => {
+                                current = Math.min(current + step, target);
+                                el.textContent = prefix + current + suffix;
+                                if (current >= target) clearInterval(timer);
+                            }, 40);
+                        });
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.4 });
+            observer.observe(ch6Counter);
+        }
+
+        const videos = container.querySelectorAll('.journey-video');
+        videos.forEach(v => {
+            v.muted = !state.soundOn;
+        });
+
+        const videoObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const video = entry.target;
+                if (entry.isIntersecting) {
+                    video.muted = !state.soundOn;
+                    video.play().catch(e => console.warn("Autoplay prevented", e));
+                } else {
+                    video.pause();
+                }
+            });
+        }, { threshold: 0.3 });
+
+        videos.forEach(v => videoObserver.observe(v));
+
         console.log("Journey Chapters Rendered");
     }
 
-    async function loadReceipts() {
-        const container = document.getElementById('receipts-dynamic-container');
-        const filterBar = document.getElementById('receipts-filter-bar');
+    async function loadVerifications() {
+        const container = document.getElementById('verifications-dynamic-container');
+        const filterBar = document.getElementById('verifications-filter-bar');
 
         if (!container) return;
 
-        console.log("Fetching Receipts...");
+        console.log("Fetching Verifications...");
         // Order by the 'order' field we set during migration
-        const receiptsQuery = query(collection(window.portfolioDB, 'receipts'), orderBy('order', 'asc'));
+        const receiptsQuery = query(collection(window.portfolioDB, 'verifications'), orderBy('order', 'asc'));
         const snapshot = await getDocs(receiptsQuery);
 
         if (snapshot.empty) {
-            container.innerHTML = "<p class='text-center text-secondary py-5'>No receipts available yet.</p>";
+            container.innerHTML = "<p class='text-center text-secondary py-5'>No verification entries available yet.</p>";
             if (filterBar) filterBar.style.display = 'none';
             return;
         }
@@ -366,67 +458,111 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = doc.data();
             categories.add(data.category);
 
+            const btnText = data.link && data.link.toLowerCase() !== "validation pending" ? "View Source" : "Validation Pending";
+            const btnAction = data.link && data.link.toLowerCase() !== "validation pending" ? `onclick="window.open('${data.link}', '_blank')"` : "disabled";
+            const description = data.desc || data.text || ''; // Fallback for old data
+
             html += `
-                <div class="receipt-card" data-category="${data.category}">
-                    <div class="receipt-stamp">${data.stamp}</div>
-                    <h3 class="mb-sm">${data.title}</h3>
-                    <p class="text-secondary mb-md">${data.text}</p>
-                    <button class="cyber-button w-full micro-hover">${data.btn}</button>
+                <div class="verification-card${data.featured ? ' featured' : ''}" data-category="${data.category || ''}">
+                    <div class="verification-stamp">${data.stamp || ''}${data.featured ? '<span class=\"featured-badge\">★ FEATURED</span>' : ''}</div>
+                    <h3 class="mb-sm">${data.title || ''}</h3>
+                    <p class="text-secondary mb-md">${description}</p>
+                    <button class="cyber-button w-full" style="cursor: pointer;" ${btnAction}>${btnText}</button>
                 </div>
             `;
         });
 
         container.innerHTML = html;
 
+        // CH6 Counter Animation — trigger on scroll
+        const ch6Counter = document.getElementById('ch6-counter');
+        if (ch6Counter) {
+            const counterNums = ch6Counter.querySelectorAll('.counter-num[data-target]');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        counterNums.forEach(el => {
+                            const target = parseInt(el.dataset.target, 10);
+                            const prefix = el.dataset.prefix || '';
+                            const suffix = el.dataset.suffix || '';
+                            let current = 0;
+                            const step = Math.ceil(target / 40);
+                            const timer = setInterval(() => {
+                                current = Math.min(current + step, target);
+                                el.textContent = prefix + current + suffix;
+                                if (current >= target) clearInterval(timer);
+                            }, 40);
+                        });
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.4 });
+            observer.observe(ch6Counter);
+        }
+
         // Dynamically build filter buttons if they don't exist
         if (filterBar && filterBar.children.length === 0) {
-            let filterHtml = '<button class="cyber-button filter-btn active" data-filter="all">ALL RECEIPTS</button>';
+            let filterHtml = '<button class="cyber-button filter-btn active" data-filter="all">ALL VALIDATION</button>';
             categories.forEach(cat => {
                 const label = cat.charAt(0).toUpperCase() + cat.slice(1);
                 filterHtml += `<button class="cyber-button filter-btn" data-filter="${cat}">${label}</button>`;
             });
+            filterHtml += '<input type="text" id="verification-search" placeholder="Search archive..." class="glass-input cyber-input ml-md filter-search-input" style="padding: 0.5rem 1rem; border-radius: 4px; width: auto; display: inline-block;">';
             filterBar.innerHTML = filterHtml;
             // Re-bind filter events since we just created these buttons
             bindReceiptFilters();
         }
 
-        console.log("Receipts Rendered");
+        console.log("Verifications Rendered");
     }
 
     // Extracted filter binding so it can be called after dynamic generation
     function bindReceiptFilters() {
         const filterBtns = document.querySelectorAll('.filter-btn');
-        const receiptCards = document.querySelectorAll('.receipt-card');
+        const searchInput = document.getElementById('verification-search');
+        const receiptCards = document.querySelectorAll('.verification-card');
+
+        const applyFilters = () => {
+            const activeBtn = document.querySelector('.filter-btn.active');
+            const filterValue = activeBtn ? activeBtn.getAttribute('data-filter') : 'all';
+            const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+
+            receiptCards.forEach(card => {
+                const matchesCategory = filterValue === 'all' || card.getAttribute('data-category') === filterValue;
+                const matchesSearch = searchQuery === '' || card.innerText.toLowerCase().includes(searchQuery);
+
+                if (matchesCategory && matchesSearch) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 50);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 200);
+                }
+            });
+        };
 
         if (filterBtns.length > 0 && receiptCards.length > 0) {
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
                     filterBtns.forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-
-                    const filterValue = btn.getAttribute('data-filter');
-
-                    receiptCards.forEach(card => {
-                        if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
-                            card.style.display = 'block';
-                            setTimeout(() => {
-                                card.style.opacity = '1';
-                                card.style.transform = 'scale(1)';
-                            }, 50);
-                        } else {
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.95)';
-                            setTimeout(() => {
-                                card.style.display = 'none';
-                            }, 200);
-                        }
-                    });
+                    applyFilters();
 
                     if (state.soundOn && !state.calmMode) {
                         playTickSound();
                     }
                 });
             });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
         }
     }
 
@@ -509,10 +645,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function initGSAPAnimations() {
         if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            // Animate Receipt Cards staggering in
-            gsap.from(".receipt-card", {
+            // Animate Verification Cards staggering in
+            gsap.from(".verification-card", {
                 scrollTrigger: {
-                    trigger: ".receipts-grid",
+                    trigger: ".verifications-grid",
                     start: "top 80%"
                 },
                 y: 50,
@@ -551,41 +687,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- Audio System (Placeholders for subtle web audio synthesis) ---
-    // Instead of importing bulky mp3s, we can synthesize a high-tech tick/blip
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // --- Audio System (lazy-init on first gesture — satisfies browser autoplay policy) ---
+    let _audioCtx = null;
+    function getAudioCtx() {
+        if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return _audioCtx;
+    }
 
     function playTickSound() {
         if (!state.soundOn || state.calmMode) return;
         try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
-            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.05);
+            osc.stop(ctx.currentTime + 0.05);
         } catch (e) { }
     }
 
     function playSubtleHoverSound() {
         if (!state.soundOn || state.calmMode) return;
-        // Even softer tick
         try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const ctx = getAudioCtx();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+            osc.frequency.setValueAtTime(1200, ctx.currentTime);
+            gain.gain.setValueAtTime(0.02, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
             osc.start();
-            osc.stop(audioCtx.currentTime + 0.03);
+            osc.stop(ctx.currentTime + 0.03);
         } catch (e) { }
     }
 
@@ -710,38 +850,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (state.soundOn && !state.calmMode) {
                 // Simulate boot sound
                 try {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
+                    const ctx = getAudioCtx();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
                     osc.connect(gain);
-                    gain.connect(audioCtx.destination);
+                    gain.connect(ctx.destination);
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(600, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                    osc.frequency.setValueAtTime(400, ctx.currentTime);
+                    osc.frequency.setValueAtTime(600, ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.3);
+                    osc.stop(ctx.currentTime + 0.3);
                 } catch (e) { }
             }
         });
     }
 
     // --- Easter Eggs ---
-    // 1. Solution word tracker
-    let keystrokes = '';
-    document.addEventListener('keydown', (e) => {
-        if (e.key && e.key.length === 1) { // Only track actual letters
-            keystrokes += e.key.toLowerCase();
-            // keep it short
-            if (keystrokes.length > 20) {
-                keystrokes = keystrokes.slice(-20);
-            }
-            if (keystrokes.includes('solution')) {
-                showToast("Correct.");
-                keystrokes = ''; // reset
-            }
-        }
-    });
+    // 'solution' word easter egg — handled by module-level keydown listener below (avoids duplicate listeners)
 
     function showToast(msg) {
         const toast = document.createElement('div');
@@ -851,4 +978,129 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+});
+
+
+// --- Magnetic Buttons ---
+document.querySelectorAll('.primary-btn, .cyber-button').forEach(btn => {
+    btn.style.transition = 'transform 0.3s ease-out';
+    btn.addEventListener('mousemove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transition = 'none';
+        btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+        btn.style.transition = 'transform 0.3s ease-out';
+        btn.style.transform = `translate(0px, 0px)`;
+    });
+});
+
+// --- Easter Egg Terminal ---
+const terminalOverlay = document.getElementById('terminal-overlay');
+const closeTerminalBtn = document.getElementById('close-terminal');
+let secretBuffer = "";
+const keywords = ["gravity", "hannah"];
+
+document.addEventListener('keydown', (e) => {
+    // Ignore input if user is typing in a form field
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+    
+    // Only capture letters
+    if (/^[a-zA-Z]$/.test(e.key)) {
+        secretBuffer += e.key.toLowerCase();
+        
+        // Keep buffer length to max keyword length to prevent huge memory buildup
+        if (secretBuffer.length > 10) {
+            secretBuffer = secretBuffer.slice(1);
+        }
+
+        keywords.forEach(word => {
+            if (secretBuffer.includes(word)) {
+                terminalOverlay.style.display = 'flex';
+                secretBuffer = ""; // Reset
+                
+                // Animate text entry if desired, or just show
+                gsap.fromTo("#terminal-output p, #terminal-output ul li", 
+                    { opacity: 0, x: -10 }, 
+                    { opacity: 1, x: 0, duration: 0.1, stagger: 0.1, ease: "power1.inOut" }
+                );
+            }
+        });
+    }
+});
+
+if (closeTerminalBtn) {
+    closeTerminalBtn.addEventListener('click', () => {
+        terminalOverlay.style.display = 'none';
+        secretBuffer = "";
+    });
+}
+
+// --- Seamless Section Transitions ---
+const shutterPanels = document.querySelectorAll('.shutter-panel');
+const shutterLogo = document.querySelector('.shutter-logo');
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        // Skip for empty hash or simple toggles
+        if (this.getAttribute('href') === '#') return;
+        if (this.classList.contains('skip-link') && this.getAttribute('href') === '#verifications') {
+            // Let the standard smooth scroll happen without shutter, or we can use shutter here too.
+            // Let's use the shutter for ALL main navigation anchor links.
+        }
+
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        const targetElement = document.querySelector(targetId);
+
+        if (targetElement && window.gsap) {
+            // Close mobile menu if open
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.classList.contains('open')) {
+                navLinks.classList.remove('open');
+            }
+
+            // GSAP Sequence: Wipe Down -> Scroll -> Wipe Down (Reveal)
+            let tl = gsap.timeline();
+            
+            // Bring panels down
+            tl.to(shutterPanels, {
+                y: "0%", 
+                duration: 0.6, 
+                stagger: 0.1, 
+                ease: "power3.inOut"
+            })
+            // Show Logo
+            .to(shutterLogo, {
+                opacity: 1,
+                duration: 0.2
+            }, "-=0.2")
+            // Instantly scroll while covered
+            .call(() => {
+                window.scrollTo({
+                    top: targetElement.offsetTop,
+                    behavior: 'auto' // Instant scroll
+                });
+            })
+            // Hide Logo
+            .to(shutterLogo, {
+                opacity: 0,
+                duration: 0.2
+            }, "+=0.2") // Little pause while covered
+            // Wipe panels down and away
+            .to(shutterPanels, {
+                y: "100%", 
+                duration: 0.6, 
+                stagger: 0.1, 
+                ease: "power3.inOut"
+            })
+            // Reset for next time
+            .set(shutterPanels, { y: "-100%" });
+        } else if (targetElement) {
+            // Fallback for no GSAP
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
 });

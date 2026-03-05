@@ -1,0 +1,15 @@
+# Visual Validation Plan
+
+- [ ] Open index.html and observe Loading Screen
+- [ ] Hover on "I don't wait. I build." (Tooltip check)
+- [ ] Hover on "Scroll. I'll show you."
+- [ ] Scroll to Receipts Strip (Horizontal scroll check)
+- [ ] Hover on "notOK" card (Glow effect check)
+- [ ] Click "OPEN THE JOURNEY"
+- [ ] Scroll through Journey (Progress bar CH X/7 check)
+- [ ] Chapter 4 "PRESS TO SIMULATE" (Text sequence check)
+- [ ] Scroll to Chapter 6 and 7
+- [ ] Click "BOOK HANNAH" (Jump to Speaking section)
+- [ ] Test Receipts Filters (Tech, Media, All)
+- [ ] Footer hover "Hannah Lucas" for toast (5-6 seconds)
+- [ ] Summarize results

@@ -1,0 +1,53 @@
+# Hannah Lucas Portfolio Website
+
+## 1. Planning and Setup
+- [x] Create project structure (/Users/queenhannah/.gemini/antigravity/scratch/hannah-portfolio)
+- [x] Set up index.html, styles.css, app.js
+
+## 2. Global Styling & Foundation
+- [x] Implement global rules (premium, futuristic, clean design)
+- [x] Set up CSS variables for colors, typography, and spacing
+- [x] Implement accessibility toggles (Calm mode, Sound)
+
+## 3. UI Components Construction
+- [x] Loading Screen (Initializing brilliance)
+- [x] Navigation Bar (Home, Journey, Receipts, Speaking, Impact, Press Kit, Contact, Book CTA)
+- [x] Footer
+
+## 4. Page Sections Implementation
+- [x] Home / Hero (Headlines, CTAs, Scroll cue)
+- [x] Home / Receipts Strip (Horizontal cards)
+- [x] Home / Why Me
+- [x] Journey / Scrollytelling Experience (Chapters 1-7)
+- [x] Receipts (Library mode with filters)
+- [x] Impact (Tech for Good, Rapid Response, Community)
+- [x] Speaking (Talk titles, outcomes)
+- [x] Press Kit (Bio, Quick facts)
+- [x] Contact (Form)
+
+## 5. Interactions & Polish
+- [x] Micro-interactions (hover, click, scroll)
+- [x] Scrollytelling mechanics for Journey
+- [x] Easter eggs ("solution" toast, footer glow)
+- [x] Final visual polish and form logic
+
+## 6. Verification
+- [x] Final codebase check
+- [ ] Manual visual validation (needs MacOS browser access, currently limited)
+
+## 7. Serverless CMS (Firebase)
+- [x] Set up Firebase configuration logic in JS
+- [x] Implement Firebase Auth (Google Sign-in)
+- [x] Implement Firestore Database read/write logic
+- [ ] Implement Firebase Storage upload logic
+
+## 8. Admin Panel (Backdoor)
+- [x] Build `admin.html` dashboard UI
+- [x] Implement secure login gate (only authorized Gmail)
+- [x] Implement content editing forms (Hero, Chapters, Receipts)
+- [x] Implement style/theme configuration overrides
+- [x] Implement media upload handling (images/audio/video)
+
+## 9. Frontend Dynamic Integration
+- [x] Modify `index.html` and `app.js` to fetch content from Firestore on load
+- [x] Inject dynamic CSS variable overrides based on DB data

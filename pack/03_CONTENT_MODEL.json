@@ -1,0 +1,104 @@
+{
+  "siteSettings": {
+    "siteTitle": "Hannah Lucas",
+    "heroBanner": "Over a decade of brilliance. Still accelerating.",
+    "heroHeadlineLines": [
+      "Presence.",
+      "Purpose.",
+      "Now watch what I do with it."
+    ],
+    "heroSubhead": "Big Hair. Sharp Mind. Legendary Impact.",
+    "heroMicrocopy": "Scroll slowly. You\u2019ll want to remember every detail for your history books.",
+    "footerTagline": "Keep a close eye on me.",
+    "emails": {
+      "press": "",
+      "booking": "",
+      "partnerships": ""
+    },
+    "socialLinks": {
+      "instagram": "",
+      "tiktok": "",
+      "youtube": "",
+      "linkedin": "",
+      "x": "",
+      "facebook": "",
+      "threads": ""
+    },
+    "controlsDefault": {
+      "soundOn": false,
+      "calmMode": false,
+      "runwayMode": true,
+      "montageLayer": true
+    },
+    "cursor": {
+      "enabled": true,
+      "assetPath": "/assets/hml-cursor.png",
+      "tintColor": "#ff2aa6",
+      "sizePx": 32
+    }
+  },
+  "themeSettings": {
+    "palette": {
+      "base": "#07050a",
+      "text": "#f4f1ff",
+      "chrome": "#cfc7ff",
+      "magenta": "#ff2aa6",
+      "violet": "#7a3cff",
+      "cyan": "#34f6ff",
+      "hotPink": "#ff4bd6"
+    },
+    "typography": {
+      "headlineFont": "EditorialDisplay",
+      "bodyFont": "ModernSans",
+      "accentFont": "SmallCapsGrotesk"
+    },
+    "motion": {
+      "sparkleDensity": 35,
+      "flashbulbIntensity": 40,
+      "strobeTransitions": true,
+      "calmModeAvailable": true
+    },
+    "montageLayer": {
+      "enabled": true,
+      "artifactStyle": "business-tech-fashion",
+      "grain": 0.25,
+      "glossSheen": 0.2,
+      "magentaInkAccents": true
+    }
+  },
+  "modulesByPage": {
+    "home": [
+      "hero",
+      "verificationStrip",
+      "thesis",
+      "montagePreview",
+      "footer"
+    ],
+    "journey": [
+      "journeyChapters"
+    ],
+    "verification": [
+      "verificationFilters",
+      "verificationGrid"
+    ],
+    "speaking": [
+      "speakingHero",
+      "signatureTalks",
+      "formats",
+      "speakingValidationStrip",
+      "bookingForm"
+    ],
+    "pressKit": [
+      "pressHero",
+      "downloads",
+      "contact"
+    ],
+    "impact": [
+      "impactHero",
+      "impactSections"
+    ],
+    "contact": [
+      "contactForm"
+    ]
+  }
+}

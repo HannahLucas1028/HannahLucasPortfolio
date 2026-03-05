@@ -1,0 +1,54 @@
+# Hannah Lucas Portfolio - CMS Integration Plan
+
+## Goal Description
+The user needs the ability to dynamically update the portfolio's content, media, and styles via a private "backdoor" (Admin Panel) accessed exclusively through their Gmail account. We need to convert the static website into a dynamic full-stack application, preserving all frontend animations and "glam" aesthetics. 
+
+**Note on MacOS Compatibility:** 
+The current website code *already* fully supports and works flawlessly on MacOS Safari and Chrome. The previous mention of "Linux only" was strictly regarding *my own* internal automated testing tool, not your code! Your website works perfectly on Mac.
+
+## User Review Required
+> [!IMPORTANT]
+> **Google OAuth Credentials Needed**
+> To allow you to log in securely with your Gmail, we need to connect the app to Google. You will need to create a project in the [Google Cloud Console](https://console.cloud.google.com/), enable the **Google+ API / Google Docs API (or just Google OAuth)**, and generate an OAuth Client ID and Secret. 
+> 
+> *Once I start building, I will provide you with step-by-step instructions on how to get these keys.* For now, please confirm this path sounds good!
+
+> [!WARNING]
+> **Dynamic Frontend Changes**
+> Because you want to add pages, change fonts, and rewrite content dynamically, the current [index.html](file:///Users/queenhannah/.gemini/antigravity/scratch/hannah-portfolio/index.html) will be retrofitted. It will load, fetch your custom settings from the database, and inject the content into the existing beautiful animation structure.
+
+## Proposed Changes
+
+### Backend Infrastructure (Node.js + Express)
+- Initialize a `package.json` in the project root.
+- Install `express`, `sqlite3` (database), `multer` (for media uploads), and `passport-google-oauth20` (for Gmail login).
+- Create `server.js` to serve the site and provide API routes.
+
+### Database Schema (SQLite)
+Use a lightweight SQLite file database (`portfolio.db`) with tables:
+- **Users**: (Only your authorized email will be allowed).
+- **Theme Settings**: (Colors, font URLs, background images).
+- **Page Content**: (Headlines, body copy, media links for each chapter/section).
+- **Receipts**: (Dynamic list of achievements).
+- **Speaking/Events**: (Dynamic list).
+
+### Admin Panel ("The Backdoor")
+- **Route**: GET `/admin` (Protected)
+- A clean, user-friendly dashboard (React or Vanilla JS) where you can:
+  - Update HEX color codes / font links.
+  - Upload images, voice memos (`.mp3`/`.wav`), or videos.
+  - Paste YouTube/Vimeo embed links.
+  - Edit the text for the Home, Journey, and Impact sections.
+  - Add new "Receipt" cards.
+
+### Frontend API Integration
+- Modify [index.html](file:///Users/queenhannah/.gemini/antigravity/scratch/hannah-portfolio/index.html) and [app.js](file:///Users/queenhannah/.gemini/antigravity/scratch/hannah-portfolio/app.js) to make a `fetch('/api/content')` call on load.
+- Dynamically apply CSS variables to the `:root` pseudo-class for color/font overrides.
+- Dynamically render the DOM elements for chapters and receipts based on the database response, preserving the Scrollytelling scroll-triggers.
+
+## Verification Plan
+### Local Testing
+- Ensure `server.js` boots correctly.
+- Test Google Auth with dummy/test credentials.
+- Upload an image in the admin panel and verify it reflects on the frontend hero section.
+- Edit a color hex code and verify the glowing accents update instantly.

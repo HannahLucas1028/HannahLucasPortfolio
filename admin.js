@@ -81,27 +81,6 @@ const navItems = document.querySelectorAll('.admin-nav-item');
 const panels = document.querySelectorAll('.admin-panel');
 const panelTitle = document.getElementById('panel-title');
 
-// --- Cursor Logic ---
-const cursorAura = document.getElementById('cursor-aura');
-
-if (cursorAura) {
-    document.addEventListener('mousemove', (e) => {
-        requestAnimationFrame(() => {
-            cursorAura.style.left = `${e.clientX}px`;
-            cursorAura.style.top = `${e.clientY}px`;
-        });
-    });
-
-    const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, .admin-nav-item');
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursorAura.classList.add('hover-active');
-        });
-        el.addEventListener('mouseleave', () => {
-            cursorAura.classList.remove('hover-active');
-        });
-    });
-}
 
 async function syncAppearance() {
     try {
@@ -112,12 +91,12 @@ async function syncAppearance() {
             if (data.accentColor) {
                 accentGlowSelector.style.setProperty('--accent-glow', data.accentColor);
             }
-            if (data.cursorStyle) {
-                document.body.className = `cursor-${data.cursorStyle}`;
-            }
+            
             if (data.colorCursor) {
-                accentGlowSelector.style.setProperty('--cursor-color', data.colorCursor);
-            }
+        root.style.setProperty('--cursor-color', data.colorCursor);
+        root.style.setProperty('--cursor-color-rgb', hexToRgbStr(data.colorCursor));
+        if (window.HMLCursor) window.HMLCursor.setColor(data.colorCursor);
+    }
         } else {
             // Feature explicitly requested by User: Magenta Heart Cursor default
             accentGlowSelector.style.setProperty('--cursor-color', '#d500b5');
@@ -158,11 +137,11 @@ async function loadDashboardData() {
         const chaptersSnap = await getDocs(collection(db, "chapters"));
         document.getElementById('stat-chapters').textContent = chaptersSnap.size;
 
-        const receiptsSnap = await getDocs(collection(db, "receipts"));
-        document.getElementById('stat-receipts').textContent = receiptsSnap.size;
+        const receiptsSnap = await getDocs(collection(db, "verifications"));
+        document.getElementById('stat-verifications').textContent = receiptsSnap.size;
 
         renderChaptersTable(chaptersSnap);
-        renderReceiptsTable(receiptsSnap);
+        renderVerificationsTable(receiptsSnap);
 
         // Also load Media Gallery and Messages
         loadMediaGallery();
@@ -192,8 +171,9 @@ function renderChaptersTable(snapshot) {
 
     chapters.forEach(chapter => {
         const tr = document.createElement('tr');
+        tr.setAttribute('data-id', chapter.id);
         tr.innerHTML = `
-            <td>${chapter.id}</td>
+            <td class="drag-handle" style="cursor: grab;">☰ ${chapter.id}</td>
             <td><strong>${chapter.headline}</strong></td>
             <td class="action-cell">
                 <button class="cyber-button btn-sm" onclick="editChapter('${chapter.id}')">Edit</button>
@@ -202,31 +182,52 @@ function renderChaptersTable(snapshot) {
         `;
         tbody.appendChild(tr);
     });
+    
+    // Init Sortable
+    if (window.Sortable) {
+        new window.Sortable(tbody, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: function() { console.log("Verifications reordered - ready for Firestore sync."); }
+        });
+    }
 }
 
-function renderReceiptsTable(snapshot) {
-    const tbody = document.getElementById('receipts-table-body');
+function renderVerificationsTable(snapshot) {
+    const tbody = document.getElementById('verifications-table-body');
     tbody.innerHTML = '';
 
     if (snapshot.empty) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary">No receipts found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-secondary">No verification entries found.</td></tr>';
         return;
     }
 
-    snapshot.forEach(doc => {
-        const receipt = doc.data();
+    snapshot.forEach((doc, idx) => {
+        const verification = doc.data();
         const tr = document.createElement('tr');
+        tr.setAttribute('data-id', doc.id);
         tr.innerHTML = `
-            <td><span style="font-size:0.7rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">${receipt.category || 'N/A'}</span></td>
-            <td>${receipt.title}</td>
-            <td>${receipt.stamp || 'N/A'}</td>
+            <td class="drag-handle" style="cursor: grab;">☰ <span style="font-size:0.7rem; padding: 0.2rem 0.5rem; background: rgba(255,255,255,0.1); border-radius: 4px;">${verification.category || 'N/A'}</span></td>
+            <td>${verification.title}</td>
+            <td>${verification.stamp || 'N/A'}${verification.featured ? ' <span style="display:inline-block;padding:1px 6px;background:var(--accent-color,#b4007a);color:#fff;font-size:0.6rem;font-weight:800;letter-spacing:0.15em;border-radius:3px;vertical-align:middle;margin-left:6px;">★ FEATURED</span>' : ''}</td>
             <td class="action-cell">
                 <button class="cyber-button btn-sm" onclick="editReceipt('${doc.id}')">Edit</button>
-                <button class="primary-btn btn-sm btn-danger" onclick="deleteDocument('receipts', '${doc.id}')">Delete</button>
+                <button class="primary-btn btn-sm btn-danger" onclick="deleteDocument('verifications', '${doc.id}')">Delete</button>
             </td>
         `;
         tbody.appendChild(tr);
     });
+    
+    // Init Sortable
+    if (window.Sortable) {
+        new window.Sortable(tbody, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: function() { console.log("Verifications reordered - ready for Firestore sync."); }
+        });
+    }
 }
 
 function renderMessagesTable(snapshot) {
@@ -259,6 +260,16 @@ function renderMessagesTable(snapshot) {
         `;
         tbody.appendChild(tr);
     });
+    
+    // Init Sortable
+    if (window.Sortable) {
+        new window.Sortable(tbody, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: function() { console.log("Verifications reordered - ready for Firestore sync."); }
+        });
+    }
 }
 
 // --- Modal & Form Logic ---
@@ -281,10 +292,10 @@ window.openChapterModal = () => {
 };
 
 window.openReceiptModal = () => {
-    document.getElementById('receipt-form').reset();
-    document.getElementById('receipt-id').value = '';
-    document.getElementById('receipt-modal-title').textContent = 'Add Receipt';
-    document.getElementById('receipt-modal').style.display = 'flex';
+    document.getElementById('verification-form').reset();
+    document.getElementById('verification-id').value = '';
+    document.getElementById('verification-modal-title').textContent = 'Add Verification Entry';
+    document.getElementById('verification-modal').style.display = 'flex';
 };
 
 window.closeModal = (modalId) => {
@@ -323,22 +334,24 @@ window.editChapter = async (id) => {
 
 window.editReceipt = async (id) => {
     try {
-        const docRef = doc(db, 'receipts', id);
+        const docRef = doc(db, 'verifications', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             const data = docSnap.data();
-            document.getElementById('receipt-id').value = id;
-            document.getElementById('receipt-category').value = data.category || '';
-            document.getElementById('receipt-stamp').value = data.stamp || '';
-            document.getElementById('receipt-title').value = data.title || '';
-            document.getElementById('receipt-desc').value = data.desc || '';
-            document.getElementById('receipt-link').value = data.link || '';
+            document.getElementById('verification-id').value = id;
+            document.getElementById('verification-category').value = data.category || '';
+            document.getElementById('verification-stamp').value = data.stamp || '';
+            document.getElementById('verification-title').value = data.title || '';
+            document.getElementById('verification-desc').value = data.desc || '';
+            document.getElementById('verification-link').value = data.link || '';
+            const featuredCb = document.getElementById('verification-featured');
+            if (featuredCb) featuredCb.checked = data.featured || false;
 
-            document.getElementById('receipt-modal-title').textContent = 'Edit Receipt';
-            document.getElementById('receipt-modal').style.display = 'flex';
+            document.getElementById('verification-modal-title').textContent = 'Edit Verification Entry';
+            document.getElementById('verification-modal').style.display = 'flex';
         }
     } catch (e) {
-        console.error("Error fetching receipt:", e);
+        console.error("Error fetching verification:", e);
     }
 };
 
@@ -372,30 +385,32 @@ document.getElementById('chapter-form').addEventListener('submit', async (e) => 
     }
 });
 
-document.getElementById('receipt-form').addEventListener('submit', async (e) => {
+document.getElementById('verification-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('receipt-id').value;
+    const id = document.getElementById('verification-id').value;
 
+    const featuredCb = document.getElementById('verification-featured');
     const receiptData = {
-        category: document.getElementById('receipt-category').value,
-        stamp: document.getElementById('receipt-stamp').value,
-        title: document.getElementById('receipt-title').value,
-        desc: document.getElementById('receipt-desc').value,
-        link: document.getElementById('receipt-link').value
+        category: document.getElementById('verification-category').value,
+        stamp: document.getElementById('verification-stamp').value,
+        title: document.getElementById('verification-title').value,
+        desc: document.getElementById('verification-desc').value,
+        link: document.getElementById('verification-link').value,
+        featured: featuredCb ? featuredCb.checked : false
     };
 
     try {
         if (id) {
-            await setDoc(doc(db, 'receipts', id), receiptData);
+            await setDoc(doc(db, 'verifications', id), receiptData);
         } else {
-            await addDoc(collection(db, 'receipts'), receiptData);
+            await addDoc(collection(db, 'verifications'), receiptData);
         }
-        alert("Receipt saved successfully!");
-        window.closeModal('receipt-modal');
+        alert("Verification saved successfully!");
+        window.closeModal('verification-modal');
         loadDashboardData();
     } catch (error) {
-        console.error("Error saving receipt:", error);
-        alert("Failed to save receipt.");
+        console.error("Error saving verification:", error);
+        alert("Failed to save verification.");
     }
 });
 
@@ -561,8 +576,24 @@ async function loadAppearanceSettings() {
 
             if (data.fontHeading) document.getElementById('font-heading').value = data.fontHeading;
             if (data.fontBody) document.getElementById('font-body').value = data.fontBody;
-            if (data.cursorStyle) document.getElementById('cursor-style').value = data.cursorStyle;
-            if (data.colorCursor) document.getElementById('color-cursor').value = data.colorCursor;
+
+            // Explicitly set cursor color, defaulting to dark electric magenta if undefined
+            document.getElementById('color-cursor').value = data.colorCursor || '#d500b5';
+
+            if (data.motionDensity !== undefined) document.getElementById('motion-density').value = data.motionDensity;
+            else document.getElementById('motion-density').value = 50;
+
+            if (data.motionFlashbulb !== undefined) document.getElementById('motion-flashbulb').value = data.motionFlashbulb;
+            else document.getElementById('motion-flashbulb').value = 50;
+
+            if (data.motionTransitions !== undefined) document.getElementById('motion-transitions').checked = data.motionTransitions;
+            else document.getElementById('motion-transitions').checked = true;
+
+            if (data.cursorSize !== undefined) document.getElementById('cursor-size').value = data.cursorSize;
+            else document.getElementById('cursor-size').value = 40;
+
+            if (data.cursorEnabled !== undefined) document.getElementById('cursor-toggle').checked = data.cursorEnabled;
+            else document.getElementById('cursor-toggle').checked = true;
 
             updateHexLabels();
             applyAppearanceToAdmin(data);
@@ -599,8 +630,12 @@ document.getElementById('save-appearance-btn').addEventListener('click', async (
         colorTextSecondary: document.getElementById('color-text-secondary').value,
         fontHeading: document.getElementById('font-heading').value,
         fontBody: document.getElementById('font-body').value,
-        cursorStyle: document.getElementById('cursor-style').value,
-        colorCursor: document.getElementById('color-cursor').value
+        colorCursor: document.getElementById('color-cursor').value,
+        motionDensity: document.getElementById('motion-density').value,
+        motionFlashbulb: document.getElementById('motion-flashbulb').value,
+        motionTransitions: document.getElementById('motion-transitions').checked,
+        cursorSize: document.getElementById('cursor-size').value,
+        cursorEnabled: document.getElementById('cursor-toggle').checked
     };
 
     try {
@@ -623,6 +658,16 @@ document.getElementById('save-appearance-btn').addEventListener('click', async (
 
 // Helper to apply colors immediately to the admin dashboard for preview
 function applyAppearanceToAdmin(data) {
+
+    if (data.cursorSize) {
+        if (window.HMLCursor) window.HMLCursor.setSize(data.cursorSize);
+    }
+    if (data.cursorEnabled !== undefined) {
+        if (window.HMLCursor) {
+            data.cursorEnabled ? window.HMLCursor.enable() : window.HMLCursor.disable();
+        }
+    }
+
     const root = document.documentElement;
 
     // Convert hex to rgb string for our rgba() vars
@@ -665,47 +710,120 @@ function applyAppearanceToAdmin(data) {
     if (data.fontBody) {
         root.style.setProperty('--font-body', data.fontBody);
     }
-    if (data.cursorStyle) {
-        root.style.setProperty('--cursor-style', data.cursorStyle);
-        // Clear old cursor classes and add the new one
-        document.body.classList.remove('cursor-dot', 'cursor-ring', 'cursor-glow', 'cursor-heart');
-        document.body.classList.add(`cursor-${data.cursorStyle}`);
-    }
+    
 }
 
 
 
 // --- Custom Cursor Admin Init ---
 
-function initAdminCursor() {
-    // Only on non-touch devices
-    if (window.matchMedia("(pointer: fine)").matches && cursorAura) {
-        document.addEventListener('mousemove', (e) => {
-            requestAnimationFrame(() => {
-                cursorAura.style.left = e.clientX + 'px';
-                cursorAura.style.top = e.clientY + 'px';
-            });
-        });
-
-        // Hover effects for links, buttons, inputs
-        const interactiveElements = document.querySelectorAll('a, button, input, select, textarea, .micro-hover');
-
-        interactiveElements.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursorAura.classList.add('hover-active');
-            });
-
-            el.addEventListener('mouseleave', () => {
-                cursorAura.classList.remove('hover-active');
-            });
-        });
-    } else if (cursorAura) {
-        // Disable cursor aura on mobile
-        cursorAura.style.display = 'none';
-    }
-}
-
 // Call init on load
 document.addEventListener('DOMContentLoaded', () => {
-    initAdminCursor();
+    
+});
+// --- Bulk CSV Import for Verification Entries ---
+// Supports 13-column schema:
+// id, category, organization, title, date, type, themes, highlight,
+// metrics_label, metrics_value, link, status, asset_url
+
+function parseCSVLine(line) {
+    // Robust CSV parser that handles quoted fields containing commas
+    const result = [];
+    let field = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') { field += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+        } else if (ch === ',' && !inQuotes) {
+            result.push(field.trim());
+            field = '';
+        } else {
+            field += ch;
+        }
+    }
+    result.push(field.trim());
+    return result;
+}
+
+// Featured entry IDs from featured_top20.csv
+const FEATURED_IDS = new Set([
+    'v_0002','v_0006','v_0034','v_0109','v_0049','v_0014','v_0082',
+    'v_0067','v_0048','v_0007','v_0058','v_0107','v_0100','v_0081',
+    'v_0084','v_0015','v_0003','v_0001','v_0023','v_0009'
+]);
+
+document.getElementById('csv-upload-input')?.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!confirm('Are you sure you want to bulk import this CSV? Existing entries with matching IDs will be updated (merge).')) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        const text = event.target.result;
+        const lines = text.split('\n').filter(l => l.trim());
+        if (lines.length < 2) { alert('CSV is empty or has no data rows.'); return; }
+
+        const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g, '_'));
+        let successCount = 0;
+        let errorCount = 0;
+        let featuredCount = 0;
+
+        // Import in batches of 20 (Firestore batch limit is 500 but we use setDoc)
+        for (let i = 1; i < lines.length; i++) {
+            const rowStr = lines[i].trim();
+            if (!rowStr) continue;
+
+            const cols = parseCSVLine(rowStr);
+            const row = {};
+            headers.forEach((h, idx) => { row[h] = cols[idx] || ''; });
+
+            const docId = row.id || null;
+            const isFeatured = docId ? FEATURED_IDS.has(docId) : false;
+            if (isFeatured) featuredCount++;
+
+            const entryData = {
+                title: row.title || 'Untitled Entry',
+                org: row.organization || '',
+                date: row.date || '',
+                category: row.category || 'General',
+                desc: row.highlight || row.description || '',
+                stamp: row.status || 'VERIFIED',
+                link: row.link || '',
+                themes: row.themes || row.type || '',
+                metrics: row.metrics_value
+                    ? (row.metrics_label ? row.metrics_label + ': ' + row.metrics_value : row.metrics_value)
+                    : '',
+                assetUrl: row.asset_url || '',
+                featured: isFeatured,
+                order: i,
+                updatedAt: new Date()
+            };
+
+            try {
+                if (docId) {
+                    // Idempotent upsert using doc ID from CSV
+                    await setDoc(doc(db, 'verifications', docId), entryData, { merge: true });
+                } else {
+                    await addDoc(collection(db, 'verifications'), entryData);
+                }
+                successCount++;
+            } catch (err) {
+                console.error('Error importing row ' + i + ':', err);
+                errorCount++;
+            }
+        }
+
+        alert(
+            'Import Complete!\n' +
+            'Imported: ' + successCount + ' entries\n' +
+            'Featured: ' + featuredCount + ' entries pinned\n' +
+            (errorCount > 0 ? 'Errors: ' + errorCount : '')
+        );
+        e.target.value = '';
+        loadDashboardData();
+    };
+    reader.readAsText(file);
 });
