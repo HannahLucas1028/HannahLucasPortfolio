@@ -1,18 +1,26 @@
 /**
  * HML Portfolio — Full-Screen Portrait WebGL Background
- * Features:
- *   • Full viewport cover (object-fit: cover logic in shader)
- *   • Scroll-driven parallax: portrait shifts vertically as user scrolls
- *   • Gentle breathing / floating animation
- *   • Mouse-reactive liquid distortion ripple rings
- *   • Chromatic aberration tint (cyan/magenta split)
- *   • Radial vignette to bleed into site content
- *   • Page Visibility pause (saves GPU when tab hidden)
- *   • Debounced resize handler
+ *
+ * Root cause fix: html { zoom:0.75 } makes window.innerWidth/Height return
+ * LARGER values than the actual screen (1/0.75x = 1.333x). We use
+ * screen.width/height directly for renderer dimensions and also account for
+ * devicePixelRatio properly. The CSS on #webgl-container counters the zoom.
+ *
+ * Face positioning: Portrait subject's face center is roughly at 35% down
+ * in the image. We use u_faceY uniform to shift the crop anchor so the face
+ * maps to 50% of the viewport (center screen) at all times.
+ *
+ * Animations:
+ *  - Breathing float (Y sine wave)
+ *  - Mouse parallax (subtle XY tilt like a 3D card)
+ *  - Scroll parallax (portrait drifts slowly as page scrolls)
+ *  - Mouse ripple rings (distortion centered on cursor)
+ *  - Chromatic aberration (magenta/cyan split, intensifies near cursor)
+ *  - Deep vignette (edges dissolve into the site's dark background)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.innerWidth < 768 && !window.matchMedia('(pointer: fine)').matches) return;
+    if (window.innerWidth < 600 && !window.matchMedia('(pointer: fine)').matches) return;
     initWebGLBackground();
 });
 
@@ -20,23 +28,18 @@ function initWebGLBackground() {
     const container = document.getElementById('webgl-container');
     if (!container || !window.THREE) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(
-        window.innerWidth / -2, window.innerWidth / 2,
-        window.innerHeight / 2, window.innerHeight / -2,
-        1, 1000
-    );
+    // Use screen dimensions — unaffected by CSS zoom
+    const W = () => window.screen.width  || window.innerWidth;
+    const H = () => window.screen.height || window.innerHeight;
+
+    const scene    = new THREE.Scene();
+    const camera   = new THREE.OrthographicCamera(W()/-2, W()/2, H()/2, H()/-2, 1, 1000);
     camera.position.z = 1;
 
-    const renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: false,
-        powerPreference: 'high-performance'
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, powerPreference: 'high-performance' });
+    renderer.setSize(W(), H());
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.domElement.style.willChange = 'transform';
-    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;';
     container.appendChild(renderer.domElement);
 
     const loader = new THREE.TextureLoader();
@@ -45,16 +48,19 @@ function initWebGLBackground() {
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = false;
 
-        const imgAspect = texture.image.width / texture.image.height;
+        const imgW = texture.image.width;
+        const imgH = texture.image.height;
 
         const uniforms = {
             u_time:       { value: 0.0 },
             u_mouse:      { value: new THREE.Vector2(0.5, 0.5) },
-            u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+            u_resolution: { value: new THREE.Vector2(W(), H()) },
             u_tex:        { value: texture },
-            u_img_aspect: { value: imgAspect },
+            u_img_aspect: { value: imgW / imgH },
             u_scroll:     { value: 0.0 },
-            u_parallax:   { value: 0.18 },
+            // Where is the face center in the IMAGE (0=top, 1=bottom)?
+            // Generated portrait: face is ~37% down. We map this to 50% of screen.
+            u_face_y:     { value: 0.42 },
         };
 
         const vertexShader = `
@@ -73,117 +79,129 @@ function initWebGLBackground() {
             uniform sampler2D u_tex;
             uniform float     u_img_aspect;
             uniform float     u_scroll;
-            uniform float     u_parallax;
+            uniform float     u_face_y;
             varying vec2 vUv;
 
-            vec2 coverUV(vec2 uv, vec2 res, float imgAspect) {
+            // Full-viewport cover: image always fills screen edge-to-edge,
+            // cropping excess. faceY=content center in image coordinates that
+            // should map to screen center (0.5).
+            vec2 coverUV(vec2 uv, vec2 res, float imgAspect, float faceY) {
                 float screenAspect = res.x / res.y;
-                vec2 scale;
+                // Scale factors to map image into screen space
+                float scaleX, scaleY;
                 if (screenAspect > imgAspect) {
-                    scale = vec2(1.0, imgAspect / screenAspect);
+                    // Screen wider than image: fit width (fill X), crop Y
+                    scaleX = 1.0;
+                    scaleY = imgAspect / screenAspect;
                 } else {
-                    scale = vec2(screenAspect / imgAspect, 1.0);
+                    // Screen taller than image: fit height (fill Y), crop X
+                    scaleX = screenAspect / imgAspect;
+                    scaleY = 1.0;
                 }
-                return (uv - 0.5) * scale + 0.5;
+                // Center-crop horizontally
+                float x = (uv.x - 0.5) * scaleX + 0.5;
+                // Anchor vertically to face center: face at faceY maps to 0.5
+                float y = (uv.y - 0.5) * scaleY + faceY;
+                return vec2(x, y);
             }
 
             void main() {
-                vec2 mouse = vec2(u_mouse.x, 1.0 - u_mouse.y);
+                vec2 mouse = vec2(u_mouse.x, 1.0 - u_mouse.y); // flip Y for WebGL
+                vec2 uv    = vUv;
 
-                // Scroll parallax — portrait drifts up as user scrolls down
-                vec2 uv = vUv;
-                uv.y += (u_scroll - 0.5) * u_parallax;
+                // Scroll parallax — portrait drifts up gently as user scrolls
+                uv.y += (u_scroll - 0.5) * 0.12;
 
-                // Gentle anti-gravity breathing
-                uv.y += sin(u_time * 0.45) * 0.004;
+                // Breathing float
+                uv.y += sin(u_time * 0.5) * 0.003;
 
-                // Cover-fit the portrait to the full viewport
-                uv = coverUV(uv, u_resolution, u_img_aspect);
+                // Subtle mouse parallax (3D card tilt feel)
+                uv.x += (mouse.x - 0.5) * 0.015;
+                uv.y += (mouse.y - 0.5) * 0.01;
 
-                // Mouse ripple — concentric rings radiating from cursor
-                float dist   = distance(uv, mouse);
-                float ripple = smoothstep(0.35, 0.0, dist);
-                vec2  dir    = normalize(uv - mouse + 0.0001);
-                float rings  = sin(dist * 60.0 - u_time * 3.5) * ripple * 0.006;
-                uv += dir * rings;
+                // Cover + face-center anchor
+                vec2 cuv = coverUV(uv, u_resolution, u_img_aspect, u_face_y);
 
-                // Bounds — areas outside portrait are fully transparent
-                if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+                // Mouse ripple rings
+                float dist   = distance(cuv, mouse);
+                float ripple = smoothstep(0.4, 0.0, dist);
+                vec2  dir    = normalize(cuv - mouse + 0.0001);
+                float rings  = sin(dist * 55.0 - u_time * 3.0) * ripple * 0.005;
+                cuv += dir * rings;
+
+                // Out-of-bounds → transparent
+                if (cuv.x < 0.0 || cuv.x > 1.0 || cuv.y < 0.0 || cuv.y > 1.0) {
                     gl_FragColor = vec4(0.0);
                     return;
                 }
 
-                // Chromatic aberration — magenta/cyan split that intensifies near cursor
-                float aberr = 0.003 + ripple * 0.005;
-                float r = texture2D(u_tex, uv + vec2( aberr, 0.0)).r;
-                float g = texture2D(u_tex, uv                    ).g;
-                float b = texture2D(u_tex, uv + vec2(-aberr, 0.0)).b;
+                // Chromatic aberration (magenta/cyan)
+                float ab = 0.003 + ripple * 0.005;
+                float r = texture2D(u_tex, cuv + vec2( ab, 0.0)).r;
+                float g = texture2D(u_tex, cuv             ).g;
+                float b = texture2D(u_tex, cuv + vec2(-ab, 0.0)).b;
 
-                // Vignette — deepest at corners, open in the centre
-                float vx   = uv.x * (1.0 - uv.x);
-                float vy   = uv.y * (1.0 - uv.y);
-                float vign = pow(clamp(vx * vy * 20.0, 0.0, 1.0), 0.5);
+                // Vignette — soft dark edge dissolve
+                float vx   = cuv.x * (1.0 - cuv.x);
+                float vy   = cuv.y * (1.0 - cuv.y);
+                float vign = pow(clamp(vx * vy * 10.0, 0.0, 1.0), 0.3);
 
-                // Final alpha: partially transparent so site bg bleeds through beautifully
-                float alpha = vign * 0.80;
-
-                gl_FragColor = vec4(r, g, b, alpha);
+                // Alpha: transparent enough to let site's dark bg bleed in atmospherically
+                // Gentle exposure boost so the portrait reads clearly over the dark site bg
+                float exposure = 1.4;
+                gl_FragColor = vec4(r * exposure, g * exposure, b * exposure, vign * 0.95);
             }
         `;
 
-        const geo  = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
+        const geo  = new THREE.PlaneGeometry(W(), H());
         const mat  = new THREE.ShaderMaterial({ uniforms, vertexShader, fragmentShader, transparent: true, depthWrite: false });
         const mesh = new THREE.Mesh(geo, mat);
         scene.add(mesh);
 
         // Mouse
-        let mouseX = 0.5, mouseY = 0.5, targetX = 0.5, targetY = 0.5;
+        let mx = 0.5, my = 0.5, tx = 0.5, ty = 0.5;
         window.addEventListener('mousemove', (e) => {
-            targetX = e.clientX / window.innerWidth;
-            targetY = e.clientY / window.innerHeight;
+            tx = e.clientX / window.innerWidth;
+            ty = e.clientY / window.innerHeight;
         });
 
         // Scroll
-        let scrollVal = 0, targetScroll = 0;
+        let sv = 0, ts = 0;
         window.addEventListener('scroll', () => {
             const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
-            targetScroll = window.scrollY / max;
+            ts = window.scrollY / max;
         }, { passive: true });
 
-        // Resize (debounced)
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                camera.left = window.innerWidth / -2; camera.right = window.innerWidth / 2;
-                camera.top = window.innerHeight / 2; camera.bottom = window.innerHeight / -2;
-                camera.updateProjectionMatrix();
-                mesh.geometry.dispose();
-                mesh.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
-                uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
-            }, 150);
-        });
+        // Resize (debounced, uses screen dims)
+        let rtimer;
+        const doResize = () => {
+            const w = W(), h = H();
+            renderer.setSize(w, h);
+            camera.left = w/-2; camera.right = w/2;
+            camera.top  = h/2;  camera.bottom = h/-2;
+            camera.updateProjectionMatrix();
+            mesh.geometry.dispose();
+            mesh.geometry = new THREE.PlaneGeometry(w, h);
+            uniforms.u_resolution.value.set(w, h);
+        };
+        window.addEventListener('resize', () => { clearTimeout(rtimer); rtimer = setTimeout(doResize, 100); });
+        window.addEventListener('orientationchange', () => { clearTimeout(rtimer); rtimer = setTimeout(doResize, 200); });
 
-        // Render loop — pauses when tab is hidden
+        // Render loop — pauses when tab hidden
         const clock = new THREE.Clock();
-        let isVisible = !document.hidden;
-        document.addEventListener('visibilitychange', () => {
-            isVisible = !document.hidden;
-            if (isVisible) clock.start();
-        });
+        let visible = !document.hidden;
+        document.addEventListener('visibilitychange', () => { visible = !document.hidden; if (visible) clock.start(); });
 
-        function animate() {
+        (function animate() {
             requestAnimationFrame(animate);
-            if (!isVisible) return;
-            mouseX    += (targetX      - mouseX)    * 0.06;
-            mouseY    += (targetY      - mouseY)    * 0.06;
-            scrollVal += (targetScroll - scrollVal) * 0.04;
+            if (!visible) return;
+            mx += (tx - mx) * 0.06;
+            my += (ty - my) * 0.06;
+            sv += (ts - sv) * 0.04;
             uniforms.u_time.value   = clock.getElapsedTime();
-            uniforms.u_mouse.value.set(mouseX, mouseY);
-            uniforms.u_scroll.value = scrollVal;
+            uniforms.u_mouse.value.set(mx, my);
+            uniforms.u_scroll.value = sv;
             renderer.render(scene, camera);
-        }
-        animate();
+        })();
     });
 }

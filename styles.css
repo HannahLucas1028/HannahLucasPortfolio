@@ -69,9 +69,25 @@ body.reduce-motion * {
    RESET & FOUNDATION
    ========================================= */
 
-/* 25% zoom-out — shows more content, everything uniformly smaller */
+/* 25% zoom-out — applied only within the page body, NOT touching the full-screen WebGL container */
+body > *:not(#webgl-container) {
+    /* Individual scaling handled per-element */
+}
+
 html {
     zoom: 0.75;
+}
+
+/* CRITICAL: Counter-zoom the WebGL background so it fills 100% of actual viewport */
+#webgl-container {
+    zoom: 1.3334 !important; /* 1/0.75 = 1.3334 reverses the parent html zoom */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
 }
 
 * {
